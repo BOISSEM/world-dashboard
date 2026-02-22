@@ -105,7 +105,7 @@ export default function HomePage() {
                 <Globe2 className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">World Dashboard</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Pays de merde</h1>
                 <p className="text-sm text-gray-500">Global Indicators</p>
               </div>
             </div>
