@@ -36,4 +36,5 @@ next-env.d.ts
 # database
 prisma/dev.db
 prisma/*.db-journal
-# prisma/prod.db  # Allowed for deployment
+# prisma/prod.db  # Allowed for deployment.env
+.env
