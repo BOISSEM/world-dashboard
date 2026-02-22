@@ -34,5 +34,6 @@ yarn-error.log*
 next-env.d.ts
 
 # database
-prisma/*.db
+prisma/dev.db
 prisma/*.db-journal
+# prisma/prod.db  # Allowed for deployment
