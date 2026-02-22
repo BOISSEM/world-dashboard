@@ -1,5 +1,3 @@
-// app/api/compare/route.ts
-
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
@@ -8,21 +6,18 @@ import { prisma } from '@/lib/db';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const iso3Codes = searchParams.get('countries')?.split(',') || [];
+    const countriesParam = searchParams.get('countries');
     const year = parseInt(searchParams.get('year') || '2023');
 
-    if (iso3Codes.length === 0) {
-      return NextResponse.json(
-        { error: 'At least one country required' },
-        { status: 400 }
-      );
+    if (!countriesParam) {
+      return NextResponse.json([]);
     }
 
-    const data = await prisma.country.findMany({
+    const countryIsos = countriesParam.split(',');
+
+    const countries = await prisma.country.findMany({
       where: {
-        iso3: {
-          in: iso3Codes,
-        },
+        iso3: { in: countryIsos },
       },
       include: {
         indicatorValues: {
@@ -40,7 +35,28 @@ export async function GET(request: Request) {
       },
     });
 
-    return NextResponse.json(data);
+    const result = countries.map((country) => {
+      const indicators: Record<string, { value: number; valueNorm: number }> = {};
+
+      country.indicatorValues.forEach((iv) => {
+        indicators[iv.indicatorId] = {
+          value: iv.value,
+          valueNorm: iv.valueNorm,
+        };
+      });
+
+      return {
+        country: {
+          iso3: country.iso3,
+          name: country.name,
+          region: country.region,
+        },
+        indicators,
+        globalScore: country.computedScores[0]?.score,
+      };
+    });
+
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Error fetching comparison data:', error);
     return NextResponse.json(

@@ -41,12 +41,17 @@ export default function HomePage() {
   const [useGlobalScore, setUseGlobalScore] = useState(true);
   const [selectedCountry, setSelectedCountry] = useState<CountryData | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  
+  // Nouveaux états pour le filtre
+  const [selectedIndicatorIds, setSelectedIndicatorIds] = useState<string[]>([]);
 
   useEffect(() => {
     fetch('/api/indicators')
       .then((res) => res.json())
       .then((data) => {
         setIndicators(data);
+        // Sélectionner tous les indicateurs par défaut
+        setSelectedIndicatorIds(data.map((i: Indicator) => i.id));
         if (data.length > 0 && !useGlobalScore) {
           setSelectedIndicatorId(data[0].id);
         }
@@ -54,19 +59,29 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    const params = new URLSearchParams({
-      year: '2023',
-      useGlobalScore: useGlobalScore.toString(),
-    });
+    if (useGlobalScore && selectedIndicatorIds.length > 0) {
+      // Score personnalisé avec indicateurs sélectionnés
+      const params = new URLSearchParams({
+        year: '2023',
+        indicatorIds: selectedIndicatorIds.join(','),
+      });
 
-    if (!useGlobalScore && selectedIndicatorId) {
-      params.set('indicatorId', selectedIndicatorId);
+      fetch(`/api/custom-score?${params}`)
+        .then((res) => res.json())
+        .then((data) => setMapData(data));
+    } else if (!useGlobalScore && selectedIndicatorId) {
+      // Un seul indicateur
+      const params = new URLSearchParams({
+        year: '2023',
+        useGlobalScore: 'false',
+        indicatorId: selectedIndicatorId,
+      });
+
+      fetch(`/api/map-data?${params}`)
+        .then((res) => res.json())
+        .then((data) => setMapData(data));
     }
-
-    fetch(`/api/map-data?${params}`)
-      .then((res) => res.json())
-      .then((data) => setMapData(data));
-  }, [selectedIndicatorId, useGlobalScore]);
+  }, [selectedIndicatorId, useGlobalScore, selectedIndicatorIds]);
 
   const handleCountryClick = async (iso3: string) => {
     const res = await fetch(`/api/countries/${iso3}`);
@@ -95,18 +110,17 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+      <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="bg-blue-600 p-2 rounded-lg">
+              <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-2 rounded-lg">
                 <Globe2 className="w-6 h-6 text-white" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Pays de merde</h1>
-                <p className="text-sm text-gray-500">Global Indicators</p>
+                <p className="text-sm text-gray-500">Global Indicators & Insights</p>
               </div>
             </div>
             <nav className="flex gap-3">
@@ -117,14 +131,14 @@ export default function HomePage() {
                 </Button>
               </Link>
               <Link href="/compare">
-                <Button variant="outline" size="sm">
-                  <BarChart3 className="w-4 h-4 mr-2" />
+                <Button variant="outline" size="sm" className="gap-2">
+                  <BarChart3 className="w-4 h-4" />
                   Compare
                 </Button>
               </Link>
               <Link href="/methodology">
-                <Button variant="outline" size="sm">
-                  <BookOpen className="w-4 h-4 mr-2" />
+                <Button variant="outline" size="sm" className="gap-2">
+                  <BookOpen className="w-4 h-4" />
                   Methodology
                 </Button>
               </Link>
@@ -133,13 +147,15 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Map Card */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
           <div className="p-6 border-b border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900">Interactive World Map</h2>
-            <p className="text-sm text-gray-600 mt-1">Click on a country to view details</p>
+            <h2 className="text-xl font-semibold text-gray-900 mb-1">
+              Interactive World Map
+            </h2>
+            <p className="text-sm text-gray-600">
+              Click on a country to view detailed indicators and scores
+            </p>
           </div>
 
           <div className="p-6">
@@ -152,31 +168,55 @@ export default function HomePage() {
                 setUseGlobalScore(false);
               }}
               onGlobalScoreToggle={() => setUseGlobalScore(!useGlobalScore)}
+              selectedIndicatorIds={selectedIndicatorIds}
+              onIndicatorFilterChange={setSelectedIndicatorIds}
             />
 
-            <div className="mt-6">
+            <div className="mt-4">
               <WorldMap
                 data={mapData}
                 onCountryClick={handleCountryClick}
-                onCountryHover={() => {}}
+                onCountryHover={(data) => {}}
               />
             </div>
           </div>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <p className="text-sm font-medium text-gray-600">Countries</p>
-            <p className="text-4xl font-bold text-blue-600 mt-2">{mapData.length}</p>
+          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Countries</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">{mapData.length}</p>
+              </div>
+              <div className="bg-blue-100 rounded-full p-3">
+                <Globe2 className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <p className="text-sm font-medium text-gray-600">Indicators</p>
-            <p className="text-4xl font-bold text-indigo-600 mt-2">{indicators.length}</p>
+
+          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-indigo-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Indicators</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">{indicators.length}</p>
+              </div>
+              <div className="bg-indigo-100 rounded-full p-3">
+                <BarChart3 className="w-6 h-6 text-indigo-600" />
+              </div>
+            </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <p className="text-sm font-medium text-gray-600">Data Year</p>
-            <p className="text-4xl font-bold text-purple-600 mt-2">2023</p>
+
+          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Data Year</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">2023</p>
+              </div>
+              <div className="bg-purple-100 rounded-full p-3">
+                <BookOpen className="w-6 h-6 text-purple-600" />
+              </div>
+            </div>
           </div>
         </div>
       </main>

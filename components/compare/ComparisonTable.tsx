@@ -1,4 +1,3 @@
-// components/compare/ComparisonTable.tsx
 'use client';
 
 import {
@@ -9,74 +8,108 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { formatNumber } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 
 interface ComparisonData {
-  country: string;
-  globalScore?: number;
+  country: {
+    iso3: string;
+    name: string;
+    region: string;
+  };
   indicators: Record<string, { value: number; valueNorm: number }>;
+  globalScore?: number;
+}
+
+interface Indicator {
+  id: string;
+  name: string;
+  theme: string;
 }
 
 interface ComparisonTableProps {
   data: ComparisonData[];
-  showNormalized: boolean;
-  indicatorNames: Record<string, string>;
+  indicators: Indicator[];
+  showRawValues: boolean;
 }
 
 export default function ComparisonTable({
   data,
-  showNormalized,
-  indicatorNames,
+  indicators,
+  showRawValues,
 }: ComparisonTableProps) {
-  if (data.length === 0) return null;
-
-  const allIndicators = Array.from(
-    new Set(data.flatMap((d) => Object.keys(d.indicators)))
-  );
+  const getColorClass = (value: number) => {
+    if (value >= 75) return 'bg-green-100 text-green-800';
+    if (value >= 50) return 'bg-yellow-100 text-yellow-800';
+    if (value >= 25) return 'bg-orange-100 text-orange-800';
+    return 'bg-red-100 text-red-800';
+  };
 
   return (
-    <div className="border rounded-lg overflow-x-auto">
+    <div className="overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Country</TableHead>
-            <TableHead className="text-right">Global Score</TableHead>
-            {allIndicators.map((indId) => (
-              <TableHead key={indId} className="text-right">
-                {indicatorNames[indId] || indId}
+            <TableHead className="sticky left-0 bg-white z-10 min-w-[200px]">
+              Country
+            </TableHead>
+            {data[0]?.globalScore !== undefined && (
+              <TableHead className="text-center font-bold">Global Score</TableHead>
+            )}
+            {indicators.map((indicator) => (
+              <TableHead key={indicator.id} className="text-center min-w-[150px]">
+                <div className="flex flex-col items-center gap-1">
+                  <span className="font-semibold">{indicator.name}</span>
+                  <Badge variant="outline" className="text-xs">
+                    {indicator.theme}
+                  </Badge>
+                </div>
               </TableHead>
             ))}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((row, idx) => (
-            <TableRow key={idx}>
-              <TableCell className="font-medium">{row.country}</TableCell>
-              <TableCell className="text-right">
-                {row.globalScore !== undefined ? (
-                  <Badge variant="secondary">
-                    {formatNumber(row.globalScore, 1)}
-                  </Badge>
-                ) : (
-                  <span className="text-gray-400">N/A</span>
-                )}
+          {data.map((item) => (
+            <TableRow key={item.country.iso3}>
+              <TableCell className="sticky left-0 bg-white z-10 font-medium">
+                <div>
+                  <div className="font-semibold">{item.country.name}</div>
+                  <div className="text-xs text-gray-500">{item.country.region}</div>
+                </div>
               </TableCell>
-              {allIndicators.map((indId) => {
-                const indData = row.indicators[indId];
-                if (!indData) {
+              {item.globalScore !== undefined && (
+                <TableCell className="text-center">
+                  <div
+                    className={`inline-block px-3 py-1 rounded-full font-bold ${getColorClass(
+                      item.globalScore
+                    )}`}
+                  >
+                    {item.globalScore.toFixed(1)}
+                  </div>
+                </TableCell>
+              )}
+              {indicators.map((indicator) => {
+                const indicatorData = item.indicators[indicator.id];
+                if (!indicatorData) {
                   return (
-                    <TableCell key={indId} className="text-right text-gray-400">
+                    <TableCell key={indicator.id} className="text-center text-gray-400">
                       N/A
                     </TableCell>
                   );
                 }
-                const displayValue = showNormalized
-                  ? indData.valueNorm
-                  : indData.value;
+
+                const displayValue = showRawValues
+                  ? indicatorData.value.toFixed(2)
+                  : indicatorData.valueNorm.toFixed(1);
+
                 return (
-                  <TableCell key={indId} className="text-right">
-                    {formatNumber(displayValue, 2)}
+                  <TableCell key={indicator.id} className="text-center">
+                    <div
+                      className={`inline-block px-3 py-1 rounded ${
+                        showRawValues ? 'bg-gray-100' : getColorClass(indicatorData.valueNorm)
+                      }`}
+                    >
+                      {displayValue}
+                    </div>
                   </TableCell>
                 );
               })}

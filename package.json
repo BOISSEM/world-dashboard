@@ -12,7 +12,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "db:seed:100": "tsx prisma/seed-100-countries.ts",
-    "db:seed:all": "tsx prisma/seed-all-countries.ts"
+    "db:seed:all": "tsx prisma/seed-all-countries.ts",
+    "db:seed:extended": "tsx prisma/seed-extended.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.19.0",
@@ -29,6 +30,7 @@
     "d3-selection": "^3.0.0",
     "lucide-react": "^0.344.0",
     "next": "14.1.0",
+    "radix-ui": "^1.4.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "recharts": "^2.12.0",
