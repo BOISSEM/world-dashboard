@@ -1,4 +1,8 @@
 // app/api/countries/[iso3]/route.ts
+
+export const dynamic = 'force-dynamic';
+
+
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
