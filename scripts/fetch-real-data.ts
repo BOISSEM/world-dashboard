@@ -3,9 +3,6 @@
  * Sources: World Bank, Freedom House, World Happiness Report, etc.
  */
 
-console.log('🕐 Started at:', new Date().toISOString());
-console.log('📍 Environment:', process.env.NODE_ENV || 'development');
-
 interface RealDataPoint {
   iso3: string;
   indicatorId: string;
@@ -24,7 +21,7 @@ async function fetchWorldBankIndicator(
   indicatorCode: string,
   indicatorId: string,
   year: number = 2023,
-  minYear: number = 2015  // <-- AJOUTER CE PARAMÈTRE
+  minYear: number = 2015
 ): Promise<RealDataPoint[]> {
   const url = `https://api.worldbank.org/v2/country/all/indicator/${indicatorCode}?format=json&date=${year}&per_page=500&MRV=1`;
   
@@ -33,13 +30,13 @@ async function fetchWorldBankIndicator(
     const data = await response.json();
     
     if (!data[1]) {
-  if (year <= minYear) {
-    console.warn(`⚠️  No data for ${indicatorId} after ${minYear}, skipping.`);
-    return [];
-  }
-  console.warn(`⚠️  No data for ${indicatorId} in ${year}, trying ${year - 1}...`);
-  return fetchWorldBankIndicator(indicatorCode, indicatorId, year - 1, minYear);
-}
+      if (year <= minYear) {
+        console.warn(`⚠️  No data for ${indicatorId} after ${minYear}, skipping.`);
+        return [];
+      }
+      console.warn(`⚠️  No data for ${indicatorId} in ${year}, trying ${year - 1}...`);
+      return fetchWorldBankIndicator(indicatorCode, indicatorId, year - 1, minYear);
+    }
 
     const points: RealDataPoint[] = data[1]
       .filter((record: any) => record.value !== null && record.countryiso3code)
@@ -154,20 +151,28 @@ async function saveToFile(data: Record<string, RealDataPoint[]>) {
 }
 
 async function main() {
+  console.log('🕐 Started at:', new Date().toISOString());
+  console.log('📍 Environment:', process.env.NODE_ENV || 'development');
   console.log('🚀 Starting real data fetch...\n');
   console.log('📡 Using World Bank Open Data API (free, no key required)\n');
   
   const realData = await fetchAllRealData();
   await saveToFile(realData);
   
+  // Calculer le total de points
+  let totalPoints = 0;
+  Object.values(realData).forEach((points) => {
+    totalPoints += points.length;
+  });
+  
+  console.log('\n🕐 Completed at:', new Date().toISOString());
+  console.log('\n📊 Summary:');
+  console.log(`   - Total indicators: ${Object.keys(realData).length}`);
+  console.log(`   - Total data points: ${totalPoints}`);
+  console.log(`   - File size: ${(JSON.stringify(realData).length / 1024).toFixed(2)} KB`);
+  
   console.log('\n🎉 Done! Real data fetched successfully.');
   console.log('\nNext step: Run the import script to load this data into your database.');
 }
 
 main().catch(console.error);
-
-console.log('🕐 Completed at:', new Date().toISOString());
-console.log('\n📊 Summary:');
-console.log(`   - Total indicators: ${Object.keys(realData).length}`);
-console.log(`   - Total data points: ${totalPoints}`);
-console.log(`   - File size: ${(JSON.stringify(realData).length / 1024).toFixed(2)} KB`);
