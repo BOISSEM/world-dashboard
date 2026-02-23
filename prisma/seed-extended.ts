@@ -7,10 +7,10 @@ async function main() {
 
   // Supprimer les anciennes données
   await prisma.computedScore.deleteMany();
-  await prisma.countryIndicatorValue.deleteMany();
-  await prisma.weightProfile.deleteMany();
-  await prisma.indicator.deleteMany();
-  await prisma.country.deleteMany();
+await prisma.weightProfile.deleteMany();
+await prisma.countryIndicatorValue.deleteMany();  // AVANT indicators
+await prisma.indicator.deleteMany();
+await prisma.country.deleteMany();
 
   // Les 197 pays (même liste qu'avant)
   const countries = [
