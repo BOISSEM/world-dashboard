@@ -1,14 +1,12 @@
-// app/layout.tsx
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import { siteMetadata } from './metadata';
+import GoogleAnalytics from './components/GoogleAnalytics';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata: Metadata = {
-  title: 'Pays de merde',
-  description: 'Classement interactif des pays',
-};
+export const metadata: Metadata = siteMetadata;
 
 export default function RootLayout({
   children,
@@ -17,7 +15,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <head>
+        {/* Google Analytics - À ajouter après */}
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="canonical" href="https://world-dashboard-five.vercel.app" />
+      </head>
+      <body className={inter.className}>
+        <GoogleAnalytics gaId="G-70BHHGBDLR" />
+        {children}
+      </body>
     </html>
   );
 }
