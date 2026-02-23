@@ -11,13 +11,11 @@ import { ArrowLeft } from 'lucide-react';
 import { formatNumber } from '@/lib/utils';
 
 interface PageProps {
-  params: {
-    iso3: string;
-  };
+  params: Promise<{ iso3: string }>;  
 }
 
 export default async function CountryPage({ params }: PageProps) {
-  const { iso3 } = params;
+  const { iso3 } = await params;  // <-- Ajouter await
 
   const country = await prisma.country.findUnique({
     where: { iso3 },

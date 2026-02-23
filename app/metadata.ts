@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const siteMetadata: Metadata = {
-  metadataBase: new URL('https://world-dashboard-five.vercel.app'), // Vous changerez par votre domaine
+  metadataBase: new URL('https://shitholecountries.fr'),
   title: {
     default: 'World Rankings - Compare 197 Countries by 30+ Indicators',
     template: '%s | World Rankings'
@@ -34,7 +34,7 @@ export const siteMetadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://world-dashboard-five.vercel.app',
+    url: 'https://shitholecountries.fr',
     siteName: 'World Rankings',
     title: 'World Rankings - Compare Countries by 30+ Indicators',
     description: 'Interactive comparison of 197 countries across economy, health, education, environment, and more.',

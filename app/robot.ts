@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/api/', '/private/'],
     },
-    sitemap: 'https://world-dashboard-five.vercel.app/sitemap.xml', // Changez par votre domaine
+    sitemap: 'https://shitholecountries.fr/sitemap.xml',
   };
 }

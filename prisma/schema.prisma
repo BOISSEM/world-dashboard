@@ -8,15 +8,12 @@ datasource db {
 }
 
 model Country {
-  iso3   String @id
-  name   String
-  region String
-
-  indicatorValues CountryIndicatorValue[]
-  computedScores  ComputedScore[]
-
-  @@map("countries")
-}
+  iso3            String                    @id
+  name            String
+  region          String
+  indicatorValues CountryIndicatorValue[]   
+  computedScores  ComputedScore[]           
+  }
 
 model Indicator {
   id             String  @id
@@ -34,17 +31,18 @@ model Indicator {
 }
 
 model CountryIndicatorValue {
+  id          Int       @id @default(autoincrement())
   iso3        String
   indicatorId String
   year        Int
   value       Float
   valueNorm   Float
+  country     Country   @relation(fields: [iso3], references: [iso3])  
+  indicator   Indicator @relation(fields: [indicatorId], references: [id]) 
 
-  country   Country   @relation(fields: [iso3], references: [iso3], onDelete: Cascade)
-  indicator Indicator @relation(fields: [indicatorId], references: [id], onDelete: Cascade)
-
-  @@id([iso3, indicatorId, year])
-  @@map("country_indicator_values")
+  @@unique([iso3, indicatorId, year])
+  @@index([iso3])
+  @@index([indicatorId])
 }
 
 model WeightProfile {

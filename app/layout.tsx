@@ -19,7 +19,7 @@ export default function RootLayout({
         {/* Google Analytics - À ajouter après */}
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="canonical" href="https://world-dashboard-five.vercel.app" />
+        <link rel="canonical" href="https://shitholecountries.fr" />
       </head>
       <body className={inter.className}>
         <GoogleAnalytics gaId="G-70BHHGBDLR" />

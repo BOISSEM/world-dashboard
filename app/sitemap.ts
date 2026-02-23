@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://world-dashboard-five.vercel.app'; // Changez par votre domaine
+  const baseUrl = 'https://shitholecountries.fr';
 
   return [
     {

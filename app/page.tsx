@@ -84,8 +84,15 @@ export default function HomePage() {
   }, [selectedIndicatorId, useGlobalScore, selectedIndicatorIds]);
 
   const handleCountryClick = async (iso3: string) => {
+  try {
     const res = await fetch(`/api/countries/${iso3}`);
     const data = await res.json();
+
+    // Vérification que les données existent
+    if (!data || !data.indicatorValues) {
+      console.error('No indicator values for', iso3);
+      return;
+    }
 
     const topIndicators = data.indicatorValues
       .map((iv: any) => ({
@@ -95,8 +102,8 @@ export default function HomePage() {
       }))
       .slice(0, 5);
 
-    const globalScore = data.computedScores[0]?.score;
-    const coverageRatio = data.computedScores[0]?.coverageRatio;
+    const globalScore = data.computedScores?.[0]?.score;
+    const coverageRatio = data.computedScores?.[0]?.coverageRatio;
 
     setSelectedCountry({
       iso3: data.iso3,
@@ -107,7 +114,10 @@ export default function HomePage() {
       coverageRatio,
     });
     setDrawerOpen(true);
-  };
+  } catch (error) {
+    console.error('Error fetching country data:', error);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
