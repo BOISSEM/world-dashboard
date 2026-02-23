@@ -1,0 +1,41 @@
+name: Test Data Update
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-update:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Test fetch real data
+        run: npm run fetch:real-data
+      
+      - name: Check data file
+        run: |
+          if [ -f "data/real-data.json" ]; then
+            echo "✅ Data file created successfully"
+            ls -lh data/real-data.json
+          else
+            echo "❌ Data file not created"
+            exit 1
+          fi
+      
+      - name: Upload data artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-data
+          path: data/real-data.json
+          retention-days: 7
