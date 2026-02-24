@@ -40,28 +40,49 @@ interface WBRecord {
   valueNorm: number;
 }
 
-async function fetchIndicator(indicator: (typeof INDICATORS)[number]): Promise<WBRecord[]> {
+async function fetchIndicator(
+  indicator: (typeof INDICATORS)[number],
+  attempt = 1,
+): Promise<WBRecord[]> {
   const url =
     `https://api.worldbank.org/v2/country/all/indicator/${indicator.code}` +
     `?format=json&date=${YEAR_FROM}:${YEAR_TO}&per_page=10000`;
 
-  const res = await fetch(url);
-  const data = await res.json();
+  try {
+    const res = await fetch(url);
+    const text = await res.text();
 
-  if (!data[1]) {
-    console.warn(`  ⚠️  No data for ${indicator.id}`);
-    return [];
+    // Detect HTML error page (rate limit / server error)
+    if (text.trimStart().startsWith('<')) {
+      throw new Error('HTML response (rate limited)');
+    }
+
+    const data = JSON.parse(text);
+
+    if (!data[1]) {
+      console.warn(`  ⚠️  No data for ${indicator.id}`);
+      return [];
+    }
+
+    return (data[1] as any[])
+      .filter((r) => r.value !== null && r.countryiso3code)
+      .map((r) => ({
+        iso3: r.countryiso3code,
+        indicatorId: indicator.id,
+        year: parseInt(r.date),
+        value: parseFloat(r.value),
+        valueNorm: normalize(parseFloat(r.value), indicator.scaleMin, indicator.scaleMax, indicator.higherIsBetter),
+      }));
+  } catch (err) {
+    if (attempt >= 4) {
+      console.warn(`  ❌ Failed after ${attempt} attempts: ${indicator.id}`);
+      return [];
+    }
+    const wait = attempt * 5000;
+    process.stdout.write(` (retry ${attempt} in ${wait / 1000}s)... `);
+    await new Promise((r) => setTimeout(r, wait));
+    return fetchIndicator(indicator, attempt + 1);
   }
-
-  return (data[1] as any[])
-    .filter((r) => r.value !== null && r.countryiso3code)
-    .map((r) => ({
-      iso3: r.countryiso3code,
-      indicatorId: indicator.id,
-      year: parseInt(r.date),
-      value: parseFloat(r.value),
-      valueNorm: normalize(parseFloat(r.value), indicator.scaleMin, indicator.scaleMax, indicator.higherIsBetter),
-    }));
 }
 
 async function main() {
@@ -79,7 +100,7 @@ async function main() {
     const filtered = records.filter((r) => knownISO3.has(r.iso3));
     allRecords.push(...filtered);
     console.log(`${filtered.length} records`);
-    await new Promise((r) => setTimeout(r, 600)); // be polite to the API
+    await new Promise((r) => setTimeout(r, 2000)); // be polite to the API
   }
 
   console.log(`\n💾 Upserting ${allRecords.length} values into DB...`);
