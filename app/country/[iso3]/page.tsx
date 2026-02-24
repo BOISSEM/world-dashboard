@@ -139,7 +139,7 @@ export default async function CountryPage({ params }: PageProps) {
       <main className="container mx-auto px-4 py-8">
         <CountryKPIBand kpis={kpis} />
 
-        {coverageRatio >= 0.7 && globalScore ? (
+        {coverageRatio >= 0.5 && globalScore ? (
           <Card className="mb-6 bg-blue-50 border-blue-200">
             <CardHeader>
               <CardTitle>Global Score Analysis</CardTitle>
@@ -159,7 +159,7 @@ export default async function CountryPage({ params }: PageProps) {
             <CardContent className="pt-6">
               <p className="text-sm text-gray-700">
                 Global score not displayed due to insufficient data coverage (
-                {formatNumber(coverageRatio * 100, 0)}%). Minimum 70% required.
+                {formatNumber(coverageRatio * 100, 0)}%). Minimum 50% required.
               </p>
             </CardContent>
           </Card>

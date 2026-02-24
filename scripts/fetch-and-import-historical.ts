@@ -11,13 +11,14 @@ const prisma = new PrismaClient();
 
 const YEAR_FROM = 2015;
 const YEAR_TO   = 2025;
-const TOTAL_INDICATORS = 28; // for coverage ratio
+// Note: TOTAL_INDICATORS is computed dynamically per year during score recomputation.
+// Do NOT hardcode it — the number of indicators with data varies by year.
 
 const INDICATORS = [
   { id: 'gdp_per_capita',        code: 'NY.GDP.PCAP.CD',       scaleMin: 0,  scaleMax: 100000, higherIsBetter: true  },
   { id: 'life_expectancy',       code: 'SP.DYN.LE00.IN',       scaleMin: 50, scaleMax: 90,     higherIsBetter: true  },
   { id: 'unemployment_rate',     code: 'SL.UEM.TOTL.ZS',       scaleMin: 0,  scaleMax: 30,     higherIsBetter: false },
-  { id: 'co2_emissions',         code: 'EN.ATM.CO2E.PC',       scaleMin: 0,  scaleMax: 30,     higherIsBetter: false },
+  // co2_emissions: WB code EN.ATM.CO2E.PC is broken — imported separately from OWID CSV
   { id: 'internet_access',       code: 'IT.NET.USER.ZS',       scaleMin: 0,  scaleMax: 100,    higherIsBetter: true  },
   { id: 'education_expenditure', code: 'SE.XPD.TOTL.GD.ZS',   scaleMin: 0,  scaleMax: 10,     higherIsBetter: true  },
   { id: 'health_expenditure',    code: 'SH.XPD.CHEX.GD.ZS',   scaleMin: 0,  scaleMax: 20,     higherIsBetter: true  },
@@ -129,6 +130,15 @@ async function main() {
       where: { year },
       select: { iso3: true, valueNorm: true },
     });
+    if (values.length === 0) { console.log('no data'); continue; }
+
+    // Dynamic total: how many distinct indicators have data for this year
+    const indForYear = await prisma.countryIndicatorValue.findMany({
+      where: { year },
+      select: { indicatorId: true },
+      distinct: ['indicatorId'],
+    });
+    const totalForYear = indForYear.length;
 
     // Group by country
     const byCountry = new Map<string, number[]>();
@@ -140,7 +150,7 @@ async function main() {
     let count = 0;
     for (const [iso3, norms] of byCountry) {
       const score = norms.reduce((a, b) => a + b, 0) / norms.length;
-      const coverageRatio = norms.length / TOTAL_INDICATORS;
+      const coverageRatio = norms.length / totalForYear;
       await prisma.computedScore.upsert({
         where: { iso3_profileId_year: { iso3, profileId: 'default', year } },
         update:  { score, coverageRatio },
@@ -148,7 +158,7 @@ async function main() {
       });
       count++;
     }
-    console.log(`${count} countries`);
+    console.log(`${count} countries (${totalForYear} indicators)`);
   }
 
   console.log('\n🎉 Done!');

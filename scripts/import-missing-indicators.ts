@@ -18,7 +18,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const LATEST_YEAR = 2024;
-const TOTAL_INDICATORS = 24; // 20 existing + 4 new
+// TOTAL_INDICATORS is computed dynamically per year — do NOT hardcode.
 
 // ---------------------------------------------------------------------------
 // Indicator definitions
@@ -270,6 +270,8 @@ async function main() {
 
   for (const { year } of years.sort((a, b) => a.year - b.year)) {
     const values = await prisma.countryIndicatorValue.findMany({ where: { year }, select: { iso3: true, valueNorm: true } });
+    const indForYear = await prisma.countryIndicatorValue.findMany({ where: { year }, select: { indicatorId: true }, distinct: ['indicatorId'] });
+    const totalForYear = indForYear.length;
     const byCountry = new Map<string, number[]>();
     for (const v of values) {
       if (!byCountry.has(v.iso3)) byCountry.set(v.iso3, []);
@@ -278,7 +280,7 @@ async function main() {
     let count = 0;
     for (const [iso3, norms] of byCountry) {
       const score = norms.reduce((a, b) => a + b, 0) / norms.length;
-      const coverageRatio = norms.length / TOTAL_INDICATORS;
+      const coverageRatio = norms.length / totalForYear;
       await prisma.computedScore.upsert({
         where:  { iso3_profileId_year: { iso3, profileId: 'default', year } },
         update: { score, coverageRatio },
@@ -286,7 +288,7 @@ async function main() {
       });
       count++;
     }
-    console.log(`  ${year}: ${count} countries`);
+    console.log(`  ${year}: ${count} countries (${totalForYear} indicators)`);
   }
 
   console.log('\n🎉 Done!');
