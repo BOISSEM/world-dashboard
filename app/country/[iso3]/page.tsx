@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db';
 import CountryKPIBand from '@/components/country/CountryKPIBand';
 import ThematicCards from '@/components/country/ThematicCards';
 import IndicatorTable from '@/components/country/IndicatorTable';
+import ScoreHistoryChart from '@/components/country/ScoreHistoryChart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -70,23 +71,25 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CountryPage({ params }: PageProps) {
   const { iso3 } = await params;
 
-  const country = await prisma.country.findUnique({
-    where: { iso3 },
-    include: {
-      indicatorValues: {
-        where: { year: new Date().getFullYear() },
-        include: {
-          indicator: true,
+  const [country, historicalScores] = await Promise.all([
+    prisma.country.findUnique({
+      where: { iso3 },
+      include: {
+        indicatorValues: {
+          where: { year: new Date().getFullYear() },
+          include: { indicator: true },
+        },
+        computedScores: {
+          where: { year: new Date().getFullYear(), profileId: 'default' },
         },
       },
-      computedScores: {
-        where: {
-          year: new Date().getFullYear(),
-          profileId: 'default',
-        },
-      },
-    },
-  });
+    }),
+    prisma.computedScore.findMany({
+      where: { iso3, profileId: 'default' },
+      orderBy: { year: 'asc' },
+      select: { year: true, score: true },
+    }),
+  ]);
 
   if (!country) {
     return <div>Country not found</div>;
@@ -157,6 +160,18 @@ export default async function CountryPage({ params }: PageProps) {
                 Global score not displayed due to insufficient data coverage (
                 {formatNumber(coverageRatio * 100, 0)}%). Minimum 70% required.
               </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {historicalScores.length >= 2 && (
+          <Card className="mb-6">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-semibold">Score Evolution</CardTitle>
+              <p className="text-xs text-gray-500">Based on World Bank indicators (2015–2025)</p>
+            </CardHeader>
+            <CardContent>
+              <ScoreHistoryChart data={historicalScores} />
             </CardContent>
           </Card>
         )}
