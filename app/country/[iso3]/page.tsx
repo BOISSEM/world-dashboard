@@ -21,14 +21,14 @@ export default async function CountryPage({ params }: PageProps) {
     where: { iso3 },
     include: {
       indicatorValues: {
-        where: { year: 2023 },
+        where: { year: new Date().getFullYear() },
         include: {
           indicator: true,
         },
       },
       computedScores: {
         where: {
-          year: 2023,
+          year: new Date().getFullYear(),
           profileId: 'default',
         },
       },

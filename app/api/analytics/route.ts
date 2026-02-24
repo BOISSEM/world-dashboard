@@ -10,13 +10,13 @@ export async function GET() {
       include: {
         computedScores: {
           where: {
-            year: 2023,
+            year: new Date().getFullYear(),
             profileId: 'default',
           },
         },
         indicatorValues: {
           where: {
-            year: 2023,
+            year: new Date().getFullYear(),
           },
         },
       },
