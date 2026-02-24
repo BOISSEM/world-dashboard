@@ -11,13 +11,14 @@ import { useUser } from '@clerk/nextjs';
 const FREE_FEATURES = [
   'Interactive world map',
   'Country profiles (global score + indicators)',
-  'Compare up to 3 countries',
+  'Compare up to 2 countries',
   'Analytics — Top 10 + Regions',
 ];
 
 const PREMIUM_FEATURES = [
   'Everything in Free',
   'Compare up to 5 countries',
+  'Filter by indicator',
   'Full analytics (all charts)',
   'Advanced region filters',
   'PDF & CSV export (coming soon)',
@@ -128,8 +129,8 @@ function PricingContent() {
               <CardTitle className="text-xl text-indigo-700">Premium</CardTitle>
             </div>
             <div className="flex items-baseline gap-1">
-              <span className="text-4xl font-bold text-gray-900">3€</span>
-              <span className="text-gray-500">/year</span>
+              <span className="text-4xl font-bold text-gray-900">2€</span>
+              <span className="text-gray-500">/ 1 month • no renewal</span>
             </div>
           </CardHeader>
           <CardContent>

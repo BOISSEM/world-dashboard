@@ -122,7 +122,7 @@ const filteredComparisonData = comparisonData.map((item) => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>
-                Select Countries (max {plan === 'PREMIUM' ? 5 : 3})
+                Select Countries (max {plan === 'PREMIUM' ? 5 : 2})
               </CardTitle>
               {plan === 'FREE' && (
                 <Link href="/pricing" className="text-xs text-indigo-600 font-medium hover:underline">
@@ -137,7 +137,7 @@ const filteredComparisonData = comparisonData.map((item) => {
               selectedCountries={selectedCountries}
               onSelectionChange={(isos) =>
                 setSelectedCountries(
-                  plan === 'PREMIUM' ? isos.slice(0, 5) : isos.slice(0, 3)
+                  plan === 'PREMIUM' ? isos.slice(0, 5) : isos.slice(0, 2)
                 )
               }
             />
@@ -147,28 +147,45 @@ const filteredComparisonData = comparisonData.map((item) => {
         {/* Sélection des indicateurs */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Select Indicators to Compare</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <IndicatorFilter
-                indicators={indicators}
-                selectedIds={selectedIndicators}
-                onSelectionChange={setSelectedIndicators}
-              />
-              <p className="text-sm text-gray-600">
-                {selectedIndicators.length} indicator(s) selected
-              </p>
-              {selectedIndicators.length < indicators.length && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedIndicators(indicators.map((i) => i.id))}
-                >
-                  Select All
-                </Button>
+            <div className="flex items-center justify-between">
+              <CardTitle>Select Indicators to Compare</CardTitle>
+              {plan === 'FREE' && (
+                <Link href="/pricing" className="text-xs text-indigo-600 font-medium hover:underline">
+                  Premium → filter indicators
+                </Link>
               )}
             </div>
+          </CardHeader>
+          <CardContent>
+            {plan === 'PREMIUM' ? (
+              <div className="flex items-center gap-4">
+                <IndicatorFilter
+                  indicators={indicators}
+                  selectedIds={selectedIndicators}
+                  onSelectionChange={setSelectedIndicators}
+                />
+                <p className="text-sm text-gray-600">
+                  {selectedIndicators.length} indicator(s) selected
+                </p>
+                {selectedIndicators.length < indicators.length && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedIndicators(indicators.map((i) => i.id))}
+                  >
+                    Select All
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500">
+                All {indicators.length} indicators shown.{' '}
+                <Link href="/pricing" className="text-indigo-600 hover:underline font-medium">
+                  Upgrade to Premium
+                </Link>{' '}
+                to filter by indicator.
+              </p>
+            )}
           </CardContent>
         </Card>
 

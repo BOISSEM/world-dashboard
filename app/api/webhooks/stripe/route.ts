@@ -22,42 +22,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid webhook signature' }, { status: 400 });
   }
 
-  switch (event.type) {
-    case 'checkout.session.completed': {
-      const session = event.data.object as Stripe.Checkout.Session;
-      const clerkUserId = session.metadata?.clerkUserId;
-      if (!clerkUserId) break;
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const clerkUserId = session.metadata?.clerkUserId;
+    if (!clerkUserId) return NextResponse.json({ received: true });
 
-      await prisma.user.update({
-        where: { id: clerkUserId },
-        data: {
-          plan: 'PREMIUM',
-          stripeCustomerId: session.customer as string,
-          stripeSubId: session.subscription as string,
-          stripePriceId: process.env.STRIPE_PREMIUM_PRICE_ID,
-        },
-      });
-      break;
-    }
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30);
 
-    case 'customer.subscription.updated': {
-      const sub = event.data.object as Stripe.Subscription;
-      const cancelAt = sub.cancel_at ? new Date(sub.cancel_at * 1000) : null;
-      await prisma.user.updateMany({
-        where: { stripeSubId: sub.id },
-        data: { planExpiresAt: cancelAt },
-      });
-      break;
-    }
-
-    case 'customer.subscription.deleted': {
-      const sub = event.data.object as Stripe.Subscription;
-      await prisma.user.updateMany({
-        where: { stripeSubId: sub.id },
-        data: { plan: 'FREE', stripeSubId: null, planExpiresAt: null },
-      });
-      break;
-    }
+    await prisma.user.update({
+      where: { id: clerkUserId },
+      data: {
+        plan: 'PREMIUM',
+        stripeCustomerId: session.customer as string,
+        planExpiresAt: expiresAt,
+      },
+    });
   }
 
   return NextResponse.json({ received: true });

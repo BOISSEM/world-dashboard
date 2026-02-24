@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     }
 
     const plan = await getUserPlan();
-    const maxCountries = plan === 'PREMIUM' ? 5 : 3;
+    const maxCountries = plan === 'PREMIUM' ? 5 : 2;
     const countryIsos = countriesParam.split(',').slice(0, maxCountries);
 
     const countries = await prisma.country.findMany({
