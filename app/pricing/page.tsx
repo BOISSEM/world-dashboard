@@ -9,19 +9,19 @@ import { ArrowLeft, Check, Globe2, Zap } from 'lucide-react';
 import { useUser } from '@clerk/nextjs';
 
 const FREE_FEATURES = [
-  'Carte mondiale interactive',
-  'Détails pays (score global + indicateurs)',
-  'Comparaison jusqu\'à 3 pays',
-  'Analytics — Top 10 + Régions',
+  'Interactive world map',
+  'Country profiles (global score + indicators)',
+  'Compare up to 3 countries',
+  'Analytics — Top 10 + Regions',
 ];
 
 const PREMIUM_FEATURES = [
-  "Tout ce qui est inclus dans Free",
-  "Comparaison jusqu'à 5 pays",
-  'Analytics complet (tous les graphiques)',
-  'Filtres de région avancés',
-  'Export PDF & CSV (bientôt)',
-  'Données historiques (bientôt)',
+  'Everything in Free',
+  'Compare up to 5 countries',
+  'Full analytics (all charts)',
+  'Advanced region filters',
+  'PDF & CSV export (coming soon)',
+  'Historical data (coming soon)',
 ];
 
 function PricingContent() {
@@ -64,14 +64,14 @@ function PricingContent() {
     <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       {success && (
         <div className="mb-8 bg-green-50 border border-green-200 rounded-xl p-4 text-center text-green-800 font-medium">
-          Bienvenue en Premium ! Votre accès est maintenant actif.
+          Welcome to Premium! Your access is now active.
         </div>
       )}
 
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Plans & Tarifs</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">Plans & Pricing</h1>
         <p className="text-lg text-gray-600">
-          Comparez les pays avec les données mondiales les plus à jour.
+          Compare countries with the most up-to-date global data.
         </p>
       </div>
 
@@ -87,7 +87,7 @@ function PricingContent() {
             </div>
             <div className="flex items-baseline gap-1">
               <span className="text-4xl font-bold text-gray-900">0€</span>
-              <span className="text-gray-500">/mois</span>
+              <span className="text-gray-500">/month</span>
             </div>
           </CardHeader>
           <CardContent>
@@ -102,12 +102,12 @@ function PricingContent() {
             {!isSignedIn ? (
               <Link href="/sign-up">
                 <Button variant="outline" className="w-full">
-                  Commencer gratuitement
+                  Get started for free
                 </Button>
               </Link>
             ) : (
               <Button variant="outline" className="w-full" disabled>
-                {plan === 'FREE' ? 'Plan actuel' : 'Plan Free'}
+                {plan === 'FREE' ? 'Current plan' : 'Free plan'}
               </Button>
             )}
           </CardContent>
@@ -129,7 +129,7 @@ function PricingContent() {
             </div>
             <div className="flex items-baseline gap-1">
               <span className="text-4xl font-bold text-gray-900">3€</span>
-              <span className="text-gray-500">/an</span>
+              <span className="text-gray-500">/year</span>
             </div>
           </CardHeader>
           <CardContent>
@@ -149,7 +149,7 @@ function PricingContent() {
                 onClick={handlePortal}
                 disabled={loading}
               >
-                {loading ? 'Chargement...' : 'Gérer mon abonnement'}
+                {loading ? 'Loading...' : 'Manage subscription'}
               </Button>
             ) : (
               <Button
@@ -157,7 +157,7 @@ function PricingContent() {
                 onClick={handleUpgrade}
                 disabled={loading}
               >
-                {loading ? 'Chargement...' : 'Passer en Premium'}
+                {loading ? 'Loading...' : 'Upgrade to Premium'}
               </Button>
             )}
           </CardContent>

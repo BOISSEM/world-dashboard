@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/db';
 
@@ -9,8 +9,14 @@ export async function POST() {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  // Upsert user in case the Clerk webhook hasn't fired yet
+  const clerkUser = await currentUser();
+  const email = clerkUser?.emailAddresses[0]?.emailAddress ?? '';
+  const user = await prisma.user.upsert({
+    where: { id: userId },
+    update: {},
+    create: { id: userId, email },
+  });
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
 

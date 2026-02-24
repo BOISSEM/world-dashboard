@@ -66,7 +66,7 @@ export default function ComparePage() {
 
     const params = new URLSearchParams({
       countries: selectedCountries.join(','),
-      year: '2023',
+      year: String(new Date().getFullYear()),
     });
 
     fetch(`/api/compare?${params}`)
@@ -126,7 +126,7 @@ const filteredComparisonData = comparisonData.map((item) => {
               </CardTitle>
               {plan === 'FREE' && (
                 <Link href="/pricing" className="text-xs text-indigo-600 font-medium hover:underline">
-                  Premium → jusqu'à 5 pays
+                  Premium → up to 5 countries
                 </Link>
               )}
             </div>
