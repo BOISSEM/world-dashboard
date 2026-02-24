@@ -8,6 +8,8 @@ import { ArrowLeft } from 'lucide-react';
 import CompareSelector from '@/components/compare/CompareSelector';
 import ComparisonTable from '@/components/compare/ComparisonTable';
 import IndicatorFilter from '@/components/map/IndicatorFilter';
+import { UserButton } from '@clerk/nextjs';
+import PremiumGate from '@/components/PremiumGate';
 
 interface Country {
   iso3: string;
@@ -34,6 +36,13 @@ export default function ComparePage() {
   const [selectedIndicators, setSelectedIndicators] = useState<string[]>([]);
   const [comparisonData, setComparisonData] = useState<ComparisonData[]>([]);
   const [showRawValues, setShowRawValues] = useState(false);
+  const [plan, setPlan] = useState<'FREE' | 'PREMIUM'>('FREE');
+
+  useEffect(() => {
+    fetch('/api/user/plan')
+      .then((r) => r.json())
+      .then((d) => setPlan(d.plan));
+  }, []);
 
   useEffect(() => {
     fetch('/api/countries')
@@ -89,16 +98,21 @@ const filteredComparisonData = comparisonData.map((item) => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       <header className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link href="/">
-            <Button variant="ghost" className="mb-2">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Map
-            </Button>
-          </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Compare Countries</h1>
-          <p className="text-sm text-gray-600 mt-1">
-            Select multiple countries and indicators to compare
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <Link href="/">
+                <Button variant="ghost" className="mb-2">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Map
+                </Button>
+              </Link>
+              <h1 className="text-2xl font-bold text-gray-900">Compare Countries</h1>
+              <p className="text-sm text-gray-600 mt-1">
+                Select multiple countries and indicators to compare
+              </p>
+            </div>
+            <UserButton afterSignOutUrl="/" />
+          </div>
         </div>
       </header>
 
@@ -106,13 +120,26 @@ const filteredComparisonData = comparisonData.map((item) => {
         {/* Sélection des pays */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Select Countries (max 5)</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>
+                Select Countries (max {plan === 'PREMIUM' ? 5 : 2})
+              </CardTitle>
+              {plan === 'FREE' && (
+                <Link href="/pricing" className="text-xs text-indigo-600 font-medium hover:underline">
+                  Premium → jusqu'à 5 pays
+                </Link>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             <CompareSelector
               countries={countries}
               selectedCountries={selectedCountries}
-              onSelectionChange={setSelectedCountries}
+              onSelectionChange={(isos) =>
+                setSelectedCountries(
+                  plan === 'PREMIUM' ? isos.slice(0, 5) : isos.slice(0, 2)
+                )
+              }
             />
           </CardContent>
         </Card>

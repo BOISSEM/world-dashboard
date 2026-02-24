@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getUserPlan } from '@/lib/auth';
 
 export async function GET(request: Request) {
   try {
@@ -13,7 +14,9 @@ export async function GET(request: Request) {
       return NextResponse.json([]);
     }
 
-    const countryIsos = countriesParam.split(',');
+    const plan = await getUserPlan();
+    const maxCountries = plan === 'PREMIUM' ? 5 : 2;
+    const countryIsos = countriesParam.split(',').slice(0, maxCountries);
 
     const countries = await prisma.country.findMany({
       where: {

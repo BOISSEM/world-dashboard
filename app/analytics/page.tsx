@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, TrendingUp, Globe2, BarChart3 } from 'lucide-react';
+import { UserButton } from '@clerk/nextjs';
+import PremiumGate from '@/components/PremiumGate';
 import {
   BarChart,
   Bar,
@@ -34,11 +36,15 @@ export default function AnalyticsPage() {
   const [data, setData] = useState<CountryScore[]>([]);
   const [selectedIndicator, setSelectedIndicator] = useState('freedom_score');
   const [selectedRegion, setSelectedRegion] = useState('all');
+  const [plan, setPlan] = useState<'FREE' | 'PREMIUM'>('FREE');
 
   useEffect(() => {
     fetch('/api/analytics')
       .then((res) => res.json())
       .then((data) => setData(data));
+    fetch('/api/user/plan')
+      .then((r) => r.json())
+      .then((d) => setPlan(d.plan));
   }, []);
 
   const regions = ['all', ...Array.from(new Set(data.map((d) => d.region)))];
@@ -90,20 +96,25 @@ export default function AnalyticsPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       <header className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link href="/">
-            <Button variant="ghost" className="mb-2">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Map
-            </Button>
-          </Link>
-          <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-br from-purple-500 to-indigo-600 p-2 rounded-lg">
-              <TrendingUp className="w-6 h-6 text-white" />
-            </div>
+          <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h1>
-              <p className="text-sm text-gray-500">Interactive data visualizations</p>
+              <Link href="/">
+                <Button variant="ghost" className="mb-2">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Map
+                </Button>
+              </Link>
+              <div className="flex items-center gap-3">
+                <div className="bg-gradient-to-br from-purple-500 to-indigo-600 p-2 rounded-lg">
+                  <TrendingUp className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h1>
+                  <p className="text-sm text-gray-500">Interactive data visualizations</p>
+                </div>
+              </div>
             </div>
+            <UserButton afterSignOutUrl="/" />
           </div>
         </div>
       </header>
@@ -202,101 +213,113 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
 
-        {/* Scatter: GDP vs Life Expectancy */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>GDP per Capita vs Life Expectancy</CardTitle>
-            <p className="text-sm text-gray-600 mt-1">
-              Bubble size represents global score
-            </p>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={400}>
-              <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  type="number" 
-                  dataKey="gdp" 
-                  name="GDP per Capita" 
-                  label={{ value: 'GDP per Capita ($)', position: 'bottom' }}
-                />
-                <YAxis 
-                  type="number" 
-                  dataKey="lifeExpectancy" 
-                  name="Life Expectancy" 
-                  label={{ value: 'Life Expectancy (years)', angle: -90, position: 'left' }}
-                />
-                <Tooltip 
-                  cursor={{ strokeDasharray: '3 3' }}
-                  contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc', borderRadius: '8px' }}
-                  formatter={(value: any, name: string) => {
-                    if (name === 'gdp') return [`$${value.toLocaleString()}`, 'GDP per Capita'];
-                    if (name === 'lifeExpectancy') return [`${value} years`, 'Life Expectancy'];
-                    if (name === 'score') return [`${value}`, 'Global Score'];
-                    return value;
-                  }}
-                />
-                <Scatter name="Countries" data={scatterData} fill="#8b5cf6">
-                  {scatterData.map((entry, index) => {
-                    const country = filteredData.find(c => c.name === entry.name);
-                    const color = country ? COLORS[country.region as keyof typeof COLORS] || '#8b5cf6' : '#8b5cf6';
-                    return (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={color}
-                        opacity={0.6}
-                      />
-                    );
-                  })}
-                </Scatter>
-              </ScatterChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        {/* Scatter: GDP vs Life Expectancy — Premium */}
+        <PremiumGate
+          plan={plan}
+          title="Graphique Premium"
+          description="Accédez au scatter plot GDP vs Espérance de vie et bien plus avec le plan Premium."
+        >
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>GDP per Capita vs Life Expectancy</CardTitle>
+              <p className="text-sm text-gray-600 mt-1">
+                Bubble size represents global score
+              </p>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={400}>
+                <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    type="number"
+                    dataKey="gdp"
+                    name="GDP per Capita"
+                    label={{ value: 'GDP per Capita ($)', position: 'bottom' }}
+                  />
+                  <YAxis
+                    type="number"
+                    dataKey="lifeExpectancy"
+                    name="Life Expectancy"
+                    label={{ value: 'Life Expectancy (years)', angle: -90, position: 'left' }}
+                  />
+                  <Tooltip
+                    cursor={{ strokeDasharray: '3 3' }}
+                    contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc', borderRadius: '8px' }}
+                    formatter={(value: any, name: string) => {
+                      if (name === 'gdp') return [`$${value.toLocaleString()}`, 'GDP per Capita'];
+                      if (name === 'lifeExpectancy') return [`${value} years`, 'Life Expectancy'];
+                      if (name === 'score') return [`${value}`, 'Global Score'];
+                      return value;
+                    }}
+                  />
+                  <Scatter name="Countries" data={scatterData} fill="#8b5cf6">
+                    {scatterData.map((entry, index) => {
+                      const country = filteredData.find(c => c.name === entry.name);
+                      const color = country ? COLORS[country.region as keyof typeof COLORS] || '#8b5cf6' : '#8b5cf6';
+                      return (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={color}
+                          opacity={0.6}
+                        />
+                      );
+                    })}
+                  </Scatter>
+                </ScatterChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </PremiumGate>
 
-        {/* Evolution comparative */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Top 20 Countries - Indicator Comparison</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={500}>
-              <LineChart data={top20}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" angle={-45} textAnchor="end" height={120} />
-                <YAxis domain={[0, 100]} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc', borderRadius: '8px' }}
-                />
-                <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="score" 
-                  stroke="#3b82f6" 
-                  strokeWidth={2}
-                  name="Global Score"
-                  dot={{ r: 4 }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey={(d) => d.indicators.freedom_score} 
-                  stroke="#10b981" 
-                  strokeWidth={2}
-                  name="Freedom"
-                  dot={{ r: 3 }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey={(d) => d.indicators.gdp_per_capita} 
-                  stroke="#f59e0b" 
-                  strokeWidth={2}
-                  name="GDP"
-                  dot={{ r: 3 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        {/* Evolution comparative — Premium */}
+        <PremiumGate
+          plan={plan}
+          title="Comparaison d'indicateurs Premium"
+          description="Comparez les 20 meilleurs pays sur plusieurs indicateurs simultanément."
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle>Top 20 Countries - Indicator Comparison</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={500}>
+                <LineChart data={top20}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" angle={-45} textAnchor="end" height={120} />
+                  <YAxis domain={[0, 100]} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc', borderRadius: '8px' }}
+                  />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="score"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    name="Global Score"
+                    dot={{ r: 4 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey={(d) => d.indicators.freedom_score}
+                    stroke="#10b981"
+                    strokeWidth={2}
+                    name="Freedom"
+                    dot={{ r: 3 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey={(d) => d.indicators.gdp_per_capita}
+                    stroke="#f59e0b"
+                    strokeWidth={2}
+                    name="GDP"
+                    dot={{ r: 3 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </PremiumGate>
       </main>
     </div>
   );

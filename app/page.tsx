@@ -7,6 +7,7 @@ import CountryDrawer from '@/components/country/CountryDrawer';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { BarChart3, BookOpen, Globe2, TrendingUp } from 'lucide-react';
+import { UserButton, SignInButton, useUser } from '@clerk/nextjs';
 
 interface Indicator {
   id: string;
@@ -35,6 +36,7 @@ interface CountryData {
 }
 
 export default function HomePage() {
+  const { isSignedIn } = useUser();
   const [indicators, setIndicators] = useState<Indicator[]>([]);
   const [mapData, setMapData] = useState<MapDataPoint[]>([]);
   const [selectedIndicatorId, setSelectedIndicatorId] = useState<string | null>(null);
@@ -133,7 +135,7 @@ export default function HomePage() {
                 <p className="text-sm text-gray-500">Global Indicators & Insights</p>
               </div>
             </div>
-            <nav className="flex gap-3">
+            <nav className="flex items-center gap-3">
               <Link href="/analytics">
                 <Button variant="outline" size="sm" className="gap-2">
                   <TrendingUp className="w-4 h-4" />
@@ -152,6 +154,20 @@ export default function HomePage() {
                   Methodology
                 </Button>
               </Link>
+              <Link href="/pricing">
+                <Button variant="outline" size="sm" className="gap-2 border-indigo-300 text-indigo-700 hover:bg-indigo-50">
+                  Premium
+                </Button>
+              </Link>
+              {isSignedIn ? (
+                <UserButton afterSignOutUrl="/" />
+              ) : (
+                <SignInButton mode="modal">
+                  <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                    Sign In
+                  </Button>
+                </SignInButton>
+              )}
             </nav>
           </div>
         </div>

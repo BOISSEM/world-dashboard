@@ -68,3 +68,20 @@ model ComputedScore {
   @@id([iso3, profileId, year])
   @@map("computed_scores")
 }
+
+enum Plan {
+  FREE
+  PREMIUM
+}
+
+model User {
+  id               String    @id          // Clerk user ID (user_xxx)
+  email            String    @unique
+  plan             Plan      @default(FREE)
+  stripeCustomerId String?   @unique
+  stripePriceId    String?
+  stripeSubId      String?
+  planExpiresAt    DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
