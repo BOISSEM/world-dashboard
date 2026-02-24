@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/api/', '/private/'],
     },
-    sitemap: 'https://shitholecountries.fr/sitemap.xml',
+    sitemap: 'https://www.shitholecountries.fr/sitemap.xml',
   };
 }

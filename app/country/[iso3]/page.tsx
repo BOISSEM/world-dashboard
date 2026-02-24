@@ -1,21 +1,63 @@
 // app/country/[iso3]/page.tsx
+import { Metadata } from 'next';
 import { prisma } from '@/lib/db';
 import CountryKPIBand from '@/components/country/CountryKPIBand';
 import ThematicCards from '@/components/country/ThematicCards';
 import IndicatorTable from '@/components/country/IndicatorTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { formatNumber } from '@/lib/utils';
 
 interface PageProps {
-  params: Promise<{ iso3: string }>;  
+  params: Promise<{ iso3: string }>;
+}
+
+export async function generateStaticParams() {
+  const countries = await prisma.country.findMany({ select: { iso3: true } });
+  return countries.map((c) => ({ iso3: c.iso3 }));
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { iso3 } = await params;
+
+  const country = await prisma.country.findUnique({
+    where: { iso3 },
+    select: {
+      name: true,
+      region: true,
+      computedScores: {
+        where: { year: new Date().getFullYear(), profileId: 'default' },
+        select: { score: true, coverageRatio: true },
+        take: 1,
+      },
+    },
+  });
+
+  if (!country) return { title: 'Country Not Found' };
+
+  const score = country.computedScores[0]?.score;
+  const scoreText = score != null ? ` — Score ${score.toFixed(0)}/100` : '';
+  const title = `${country.name}${scoreText}`;
+  const description = `${country.name} country profile: global ranking, economy, health, education, environment and quality of life indicators. Region: ${country.region}.`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/country/${iso3}`,
+    },
+    openGraph: {
+      title: `${title} | World Rankings`,
+      description,
+      url: `/country/${iso3}`,
+    },
+  };
 }
 
 export default async function CountryPage({ params }: PageProps) {
-  const { iso3 } = await params;  // <-- Ajouter await
+  const { iso3 } = await params;
 
   const country = await prisma.country.findUnique({
     where: { iso3 },
@@ -42,24 +84,12 @@ export default async function CountryPage({ params }: PageProps) {
   const globalScore = country.computedScores[0];
   const coverageRatio = globalScore?.coverageRatio || 0;
 
-  // Prepare KPIs
   const kpis = [
-    {
-      label: 'Global Score',
-      value: globalScore?.score || 0,
-    },
-    {
-      label: 'Indicators Covered',
-      value: country.indicatorValues.length,
-    },
-    {
-      label: 'Coverage Ratio',
-      value: coverageRatio * 100,
-      unit: '%',
-    },
+    { label: 'Global Score', value: globalScore?.score || 0 },
+    { label: 'Indicators Covered', value: country.indicatorValues.length },
+    { label: 'Coverage Ratio', value: coverageRatio * 100, unit: '%' },
   ];
 
-  // Prepare thematic data
   const thematicData = country.indicatorValues.map((iv) => ({
     name: iv.indicator.name,
     value: iv.value,
@@ -67,7 +97,6 @@ export default async function CountryPage({ params }: PageProps) {
     theme: iv.indicator.theme,
   }));
 
-  // Prepare table data
   const tableData = country.indicatorValues.map((iv) => ({
     name: iv.indicator.name,
     theme: iv.indicator.theme,

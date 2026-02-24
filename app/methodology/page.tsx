@@ -1,7 +1,20 @@
+import { Metadata } from 'next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Methodology',
+  description:
+    'How country scores are calculated: data sources, indicator normalization, weighting, and scoring methodology for 197 countries across 30+ global indicators.',
+  alternates: { canonical: '/methodology' },
+  openGraph: {
+    title: 'Methodology | World Rankings',
+    description: 'How country scores are calculated across 30+ global indicators.',
+    url: '/methodology',
+  },
+};
 
 export default function MethodologyPage() {
   return (
