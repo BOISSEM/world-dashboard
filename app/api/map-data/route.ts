@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const indicatorId = searchParams.get('indicatorId');
-    const year = parseInt(searchParams.get('year') || '2023');
+    const year = parseInt(searchParams.get('year') || String(new Date().getFullYear()));
     const useGlobalScore = searchParams.get('useGlobalScore') === 'true';
 
     if (useGlobalScore) {

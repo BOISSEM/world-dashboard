@@ -6,7 +6,7 @@ import { prisma } from '@/lib/db';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const year = parseInt(searchParams.get('year') || '2023');
+    const year = parseInt(searchParams.get('year') || String(new Date().getFullYear()));
     const indicatorIds = searchParams.get('indicatorIds')?.split(',') || [];
 
     if (indicatorIds.length === 0) {

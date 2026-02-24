@@ -151,7 +151,7 @@ async function importRealData() {
         iso3_profileId_year: {
           iso3: country.iso3,
           profileId: 'default',
-          year: 2023,
+          year: new Date().getFullYear(),,
         },
       },
       update: {
@@ -161,7 +161,7 @@ async function importRealData() {
       create: {
         iso3: country.iso3,
         profileId: 'default',
-        year: 2023,
+        year: new Date().getFullYear(),,
         score: avgScore,
         coverageRatio,
       },

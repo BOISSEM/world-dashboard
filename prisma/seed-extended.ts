@@ -513,7 +513,7 @@ await prisma.country.deleteMany();
     };
   }
 
-  const year = 2023;
+  const year = new Date().getFullYear();
   console.log('⏳ Generating data for all countries...');
   let progress = 0;
 

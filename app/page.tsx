@@ -62,7 +62,7 @@ export default function HomePage() {
     if (useGlobalScore && selectedIndicatorIds.length > 0) {
       // Score personnalisé avec indicateurs sélectionnés
       const params = new URLSearchParams({
-        year: '2023',
+        year: String(new Date().getFullYear()),
         indicatorIds: selectedIndicatorIds.join(','),
       });
 
@@ -72,7 +72,7 @@ export default function HomePage() {
     } else if (!useGlobalScore && selectedIndicatorId) {
       // Un seul indicateur
       const params = new URLSearchParams({
-        year: '2023',
+        year: String(new Date().getFullYear()),
         useGlobalScore: 'false',
         indicatorId: selectedIndicatorId,
       });
@@ -221,7 +221,7 @@ export default function HomePage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Data Year</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">2023</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">{new Date().getFullYear()}</p>
               </div>
               <div className="bg-purple-100 rounded-full p-3">
                 <BookOpen className="w-6 h-6 text-purple-600" />
