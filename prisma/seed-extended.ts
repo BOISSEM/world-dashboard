@@ -229,48 +229,49 @@ await prisma.country.deleteMany();
 
   // TOUS LES INDICATEURS (30 indicateurs!)
   const indicators = [
-  // Gouvernance & Droits (5)
-  { id: 'freedom_score', name: 'Freedom Score', theme: 'Democracy & Rights', scaleMin: 0, scaleMax: 100, higherIsBetter: true, ... },
-  { id: 'wgi_political_stability', name: 'Political Stability', theme: 'Governance', scaleMin: -2.5, scaleMax: 2.5, higherIsBetter: true, ... },
-  { id: 'wgi_control_corruption', name: 'Control of Corruption', theme: 'Governance', scaleMin: -2.5, scaleMax: 2.5, higherIsBetter: true, ... },
-  { id: 'press_freedom', name: 'Press Freedom Index', theme: 'Democracy & Rights', scaleMin: 0, scaleMax: 100, higherIsBetter: false, ... }, // ✅ Correct (plus bas = mieux)
-  { id: 'gender_equality', name: 'Gender Equality Index', theme: 'Social', scaleMin: 0, scaleMax: 1, higherIsBetter: true, ... },
-  
-  // Économie (6)
-  { id: 'gdp_per_capita', name: 'GDP per Capita', theme: 'Economy', scaleMin: 0, scaleMax: 100000, higherIsBetter: true, ... },
-  { id: 'unemployment_rate', name: 'Unemployment Rate', theme: 'Economy', scaleMin: 0, scaleMax: 30, higherIsBetter: false, ... }, // ✅ Correct
-  { id: 'inflation_rate', name: 'Inflation Rate', theme: 'Economy', scaleMin: -5, scaleMax: 20, higherIsBetter: false, ... }, // ✅ Correct
-  { id: 'public_debt', name: 'Public Debt (% GDP)', theme: 'Economy', scaleMin: 0, scaleMax: 200, higherIsBetter: false, ... }, // ✅ Correct
-  { id: 'economic_competitiveness', name: 'Economic Competitiveness', theme: 'Economy', scaleMin: 0, scaleMax: 100, higherIsBetter: true, ... },
-  { id: 'gini_coefficient', name: 'Gini Coefficient (Inequality)', theme: 'Economy', scaleMin: 20, scaleMax: 70, higherIsBetter: false, ... }, // ✅ Correct
-  
-  // Santé (4)
-  { id: 'life_expectancy', name: 'Life Expectancy', theme: 'Health', scaleMin: 50, scaleMax: 90, higherIsBetter: true, ... },
-  { id: 'infant_mortality', name: 'Infant Mortality (per 1000)', theme: 'Health', scaleMin: 0, scaleMax: 100, higherIsBetter: false, ... }, // ✅ Correct
-  { id: 'doctors_per_1000', name: 'Doctors per 1000 people', theme: 'Health', scaleMin: 0, scaleMax: 10, higherIsBetter: true, ... },
-  { id: 'health_expenditure', name: 'Health Expenditure (% GDP)', theme: 'Health', scaleMin: 0, scaleMax: 20, higherIsBetter: true, ... },
-  
-  // Éducation (3)
-  { id: 'education_index', name: 'Education Index', theme: 'Education', scaleMin: 0, scaleMax: 1, higherIsBetter: true, ... },
-  { id: 'mean_years_schooling', name: 'Mean Years of Schooling', theme: 'Education', scaleMin: 0, scaleMax: 15, higherIsBetter: true, ... },
-  { id: 'education_expenditure', name: 'Education Expenditure (% GDP)', theme: 'Education', scaleMin: 0, scaleMax: 10, higherIsBetter: true, ... },
-  
-  // Environnement (4)
-  { id: 'co2_emissions', name: 'CO2 Emissions (tons per capita)', theme: 'Environment', scaleMin: 0, scaleMax: 30, higherIsBetter: false, ... }, // ⚠️ IMPORTANT!
-  { id: 'air_quality', name: 'Air Quality Index', theme: 'Environment', scaleMin: 0, scaleMax: 200, higherIsBetter: false, ... }, // ✅ Plus bas = mieux
-  { id: 'clean_water_access', name: 'Clean Water Access (%)', theme: 'Environment', scaleMin: 0, scaleMax: 100, higherIsBetter: true, ... },
-  { id: 'environmental_performance', name: 'Environmental Performance Index', theme: 'Environment', scaleMin: 0, scaleMax: 100, higherIsBetter: true, ... },
-  
-  // Social & Bonheur (4)
-  { id: 'happiness_index', name: 'Happiness Index', theme: 'Wellbeing', scaleMin: 0, scaleMax: 10, higherIsBetter: true, ... },
-  { id: 'internet_access', name: 'Internet Access (%)', theme: 'Technology', scaleMin: 0, scaleMax: 100, higherIsBetter: true, ... },
-  { id: 'crime_rate', name: 'Crime Rate (per 100k)', theme: 'Security', scaleMin: 0, scaleMax: 100, higherIsBetter: false, ... }, // ✅ Correct
-  { id: 'peace_index', name: 'Global Peace Index', theme: 'Security', scaleMin: 1, scaleMax: 5, higherIsBetter: false, ... }, // ✅ Plus bas = mieux
-  
-  // Météo (2)
-  { id: 'sunshine_hours', name: 'Sunshine Hours per Year', theme: 'Climate', scaleMin: 1000, scaleMax: 4000, higherIsBetter: true, ... },
-  { id: 'rainfall_mm', name: 'Annual Rainfall (mm)', theme: 'Climate', scaleMin: 0, scaleMax: 4000, higherIsBetter: true, ... }, // Neutre mais mettons true
-];
+    // Gouvernance & Droits (5)
+    { id: 'freedom_score', name: 'Freedom Score', theme: 'Democracy & Rights', scaleMin: 0, scaleMax: 100, higherIsBetter: true, sourceName: 'Freedom House', sourceUrl: 'https://freedomhouse.org' },
+    { id: 'wgi_political_stability', name: 'Political Stability', theme: 'Governance', scaleMin: -2.5, scaleMax: 2.5, higherIsBetter: true, sourceName: 'World Bank WGI', sourceUrl: 'https://info.worldbank.org/governance/wgi/' },
+    { id: 'wgi_control_corruption', name: 'Control of Corruption', theme: 'Governance', scaleMin: -2.5, scaleMax: 2.5, higherIsBetter: true, sourceName: 'World Bank WGI', sourceUrl: 'https://info.worldbank.org/governance/wgi/' },
+    { id: 'press_freedom', name: 'Press Freedom Index', theme: 'Democracy & Rights', scaleMin: 0, scaleMax: 100, higherIsBetter: false, sourceName: 'RSF', sourceUrl: 'https://rsf.org' },
+    { id: 'gender_equality', name: 'Gender Equality Index', theme: 'Social', scaleMin: 0, scaleMax: 1, higherIsBetter: true, sourceName: 'UNDP', sourceUrl: 'https://hdr.undp.org' },
+    
+    // Économie (6)
+    { id: 'gdp_per_capita', name: 'GDP per Capita', theme: 'Economy', scaleMin: 0, scaleMax: 100000, higherIsBetter: true, sourceName: 'World Bank', sourceUrl: 'https://data.worldbank.org' },
+    { id: 'unemployment_rate', name: 'Unemployment Rate', theme: 'Economy', scaleMin: 0, scaleMax: 30, higherIsBetter: false, sourceName: 'ILO', sourceUrl: 'https://www.ilo.org' },
+    { id: 'inflation_rate', name: 'Inflation Rate', theme: 'Economy', scaleMin: -5, scaleMax: 20, higherIsBetter: false, sourceName: 'IMF', sourceUrl: 'https://www.imf.org' },
+    { id: 'public_debt', name: 'Public Debt (% GDP)', theme: 'Economy', scaleMin: 0, scaleMax: 200, higherIsBetter: false, sourceName: 'IMF', sourceUrl: 'https://www.imf.org' },
+    { id: 'economic_competitiveness', name: 'Economic Competitiveness', theme: 'Economy', scaleMin: 0, scaleMax: 100, higherIsBetter: true, sourceName: 'WEF', sourceUrl: 'https://www.weforum.org' },
+    { id: 'gini_coefficient', name: 'Gini Coefficient (Inequality)', theme: 'Economy', scaleMin: 20, scaleMax: 70, higherIsBetter: false, sourceName: 'World Bank', sourceUrl: 'https://data.worldbank.org' },
+    
+    // Santé (4)
+    { id: 'life_expectancy', name: 'Life Expectancy', theme: 'Health', scaleMin: 50, scaleMax: 90, higherIsBetter: true, sourceName: 'WHO', sourceUrl: 'https://www.who.int' },
+    { id: 'infant_mortality', name: 'Infant Mortality (per 1000)', theme: 'Health', scaleMin: 0, scaleMax: 100, higherIsBetter: false, sourceName: 'WHO', sourceUrl: 'https://www.who.int' },
+    { id: 'doctors_per_1000', name: 'Doctors per 1000 people', theme: 'Health', scaleMin: 0, scaleMax: 10, higherIsBetter: true, sourceName: 'WHO', sourceUrl: 'https://www.who.int' },
+    { id: 'health_expenditure', name: 'Health Expenditure (% GDP)', theme: 'Health', scaleMin: 0, scaleMax: 20, higherIsBetter: true, sourceName: 'WHO', sourceUrl: 'https://www.who.int' },
+    
+    // Éducation (3)
+    { id: 'education_index', name: 'Education Index', theme: 'Education', scaleMin: 0, scaleMax: 1, higherIsBetter: true, sourceName: 'UNDP', sourceUrl: 'https://hdr.undp.org' },
+    { id: 'mean_years_schooling', name: 'Mean Years of Schooling', theme: 'Education', scaleMin: 0, scaleMax: 15, higherIsBetter: true, sourceName: 'UNDP', sourceUrl: 'https://hdr.undp.org' },
+    { id: 'education_expenditure', name: 'Education Expenditure (% GDP)', theme: 'Education', scaleMin: 0, scaleMax: 10, higherIsBetter: true, sourceName: 'UNESCO', sourceUrl: 'https://www.unesco.org' },
+    
+    // Environnement (4)
+    { id: 'co2_emissions', name: 'CO2 Emissions (tons per capita)', theme: 'Environment', scaleMin: 0, scaleMax: 30, higherIsBetter: false, sourceName: 'World Bank', sourceUrl: 'https://data.worldbank.org' },
+    { id: 'air_quality', name: 'Air Quality Index', theme: 'Environment', scaleMin: 0, scaleMax: 200, higherIsBetter: false, sourceName: 'IQAir', sourceUrl: 'https://www.iqair.com' },
+    { id: 'clean_water_access', name: 'Clean Water Access (%)', theme: 'Environment', scaleMin: 0, scaleMax: 100, higherIsBetter: true, sourceName: 'WHO', sourceUrl: 'https://www.who.int' },
+    { id: 'environmental_performance', name: 'Environmental Performance Index', theme: 'Environment', scaleMin: 0, scaleMax: 100, higherIsBetter: true, sourceName: 'Yale EPI', sourceUrl: 'https://epi.yale.edu' },
+    
+    // Social & Bonheur (4)
+    { id: 'happiness_index', name: 'Happiness Index', theme: 'Wellbeing', scaleMin: 0, scaleMax: 10, higherIsBetter: true, sourceName: 'World Happiness Report', sourceUrl: 'https://worldhappiness.report' },
+    { id: 'internet_access', name: 'Internet Access (%)', theme: 'Technology', scaleMin: 0, scaleMax: 100, higherIsBetter: true, sourceName: 'ITU', sourceUrl: 'https://www.itu.int' },
+    { id: 'crime_rate', name: 'Crime Rate (per 100k)', theme: 'Security', scaleMin: 0, scaleMax: 100, higherIsBetter: false, sourceName: 'UNODC', sourceUrl: 'https://www.unodc.org' },
+    { id: 'peace_index', name: 'Global Peace Index', theme: 'Security', scaleMin: 1, scaleMax: 5, higherIsBetter: false, sourceName: 'IEP', sourceUrl: 'https://www.visionofhumanity.org' },
+    
+    // Météo (2)
+    { id: 'sunshine_hours', name: 'Sunshine Hours per Year', theme: 'Climate', scaleMin: 1000, scaleMax: 4000, higherIsBetter: true, sourceName: 'Climate Data', sourceUrl: 'https://en.climate-data.org' },
+    { id: 'rainfall_mm', name: 'Annual Rainfall (mm)', theme: 'Climate', scaleMin: 0, scaleMax: 4000, higherIsBetter: true, sourceName: 'Climate Data', sourceUrl: 'https://en.climate-data.org' },
+  ];
+
 
   for (const indicator of indicators) {
     await prisma.indicator.create({ data: indicator });
