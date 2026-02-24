@@ -34,7 +34,7 @@ export default function MapControls({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
         <div className="flex items-center gap-3">
           <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
-            Colorier par :
+            Color by:
           </span>
           <Select
             value={useGlobalScore ? 'global' : selectedIndicatorId || ''}
