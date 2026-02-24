@@ -1,6 +1,6 @@
 /**
  * Imports 4 key indicators with verified sources:
- *   - co2_emissions      : World Bank EN.ATM.CO2E.PC (metric tons per capita)
+ *   - co2_emissions      : Our World in Data / GCP (metric tons per capita)
  *   - homicide_rate      : World Bank VC.IHR.PSRC.P5 (per 100,000 people)
  *   - freedom_score      : World Bank WGI VA.EST (Voice & Accountability, -2.5 → 2.5)
  *   - happiness_index    : Our World in Data / World Happiness Report (Cantril ladder, 0–10)
@@ -23,16 +23,16 @@ const TOTAL_INDICATORS = 24; // 20 existing + 4 new
 // ---------------------------------------------------------------------------
 // Indicator definitions
 // ---------------------------------------------------------------------------
+const CO2_INDICATOR = {
+  id: 'co2_emissions',
+  name: 'CO2 Emissions per Capita',
+  theme: 'Environment',
+  sourceName: 'Our World in Data / GCP',
+  sourceUrl: 'https://ourworldindata.org/co2-emissions',
+  scaleMin: 0, scaleMax: 25, higherIsBetter: false,
+} as const;
+
 const WB_INDICATORS = [
-  {
-    id: 'co2_emissions',
-    name: 'CO2 Emissions per Capita',
-    theme: 'Environment',
-    sourceName: 'World Bank / IEA',
-    sourceUrl: 'https://data.worldbank.org/indicator/EN.ATM.CO2E.PC',
-    wbCode: 'EN.ATM.CO2E.PC',
-    scaleMin: 0, scaleMax: 25, higherIsBetter: false,
-  },
   {
     id: 'homicide_rate',
     name: 'Homicide Rate',
@@ -114,6 +114,38 @@ async function fetchWBMRV(code: string): Promise<RawPoint[]> {
 }
 
 // ---------------------------------------------------------------------------
+// Our World in Data — CO2 emissions per capita (GCP dataset)
+// ---------------------------------------------------------------------------
+async function fetchCO2(): Promise<RawPoint[]> {
+  const url = 'https://ourworldindata.org/grapher/co-emissions-per-capita.csv';
+  const res  = await fetch(url);
+  const text = await res.text();
+  const lines = text.split('\n').filter(Boolean);
+  const header = lines[0].split(',');
+  const col = header.findIndex(h => h.trim().startsWith('CO') && h.includes('emissions per capita'));
+
+  const rows: RawPoint[] = [];
+  for (const line of lines.slice(1)) {
+    const cols = line.split(',');
+    const iso3  = cols[1]?.trim();
+    const year  = parseInt(cols[2]);
+    const value = col >= 0 ? parseFloat(cols[col]) : NaN;
+    if (!iso3 || iso3.startsWith('OWID') || isNaN(year) || isNaN(value)) continue;
+    if (year >= 2015 && year <= 2023) rows.push({ iso3, year, value });
+  }
+
+  // Most recent value per country → stored as LATEST_YEAR
+  const latest = new Map<string, RawPoint>();
+  for (const r of rows) {
+    const cur = latest.get(r.iso3);
+    if (!cur || r.year > cur.year) latest.set(r.iso3, r);
+  }
+  const currentYear = Array.from(latest.values()).map(r => ({ ...r, year: LATEST_YEAR }));
+
+  return [...rows, ...currentYear];
+}
+
+// ---------------------------------------------------------------------------
 // Our World in Data — Happiness
 // ---------------------------------------------------------------------------
 async function fetchHappiness(): Promise<RawPoint[]> {
@@ -179,7 +211,20 @@ async function main() {
   const countries  = await prisma.country.findMany({ select: { iso3: true } });
   const knownISO3  = new Set(countries.map(c => c.iso3));
 
-  // ── 1. World Bank indicators ─────────────────────────────────────────────
+  // ── 1. CO2 (OWID) ────────────────────────────────────────────────────────
+  await prisma.indicator.upsert({
+    where:  { id: CO2_INDICATOR.id },
+    update: { name: CO2_INDICATOR.name, theme: CO2_INDICATOR.theme, sourceName: CO2_INDICATOR.sourceName, sourceUrl: CO2_INDICATOR.sourceUrl, scaleMin: CO2_INDICATOR.scaleMin, scaleMax: CO2_INDICATOR.scaleMax, higherIsBetter: CO2_INDICATOR.higherIsBetter },
+    create: { id: CO2_INDICATOR.id, name: CO2_INDICATOR.name, theme: CO2_INDICATOR.theme, sourceName: CO2_INDICATOR.sourceName, sourceUrl: CO2_INDICATOR.sourceUrl, scaleMin: CO2_INDICATOR.scaleMin, scaleMax: CO2_INDICATOR.scaleMax, higherIsBetter: CO2_INDICATOR.higherIsBetter },
+  });
+
+  process.stdout.write(`  co2_emissions (OWID 2015–${LATEST_YEAR})... `);
+  const co2Points = await fetchCO2();
+  console.log(`${co2Points.length} raw points`);
+  const co2Total = await upsertValues(CO2_INDICATOR.id, co2Points, CO2_INDICATOR.scaleMin, CO2_INDICATOR.scaleMax, CO2_INDICATOR.higherIsBetter, knownISO3);
+  console.log(`  ✅ co2_emissions: ${co2Total} values upserted\n`);
+
+  // ── 2. World Bank indicators (homicide + freedom) ─────────────────────────
   for (const ind of WB_INDICATORS) {
     // Ensure indicator record exists
     await prisma.indicator.upsert({
@@ -202,7 +247,7 @@ async function main() {
     console.log(`  ✅ ${ind.id}: ${total} values upserted\n`);
   }
 
-  // ── 2. Happiness (OWID) ──────────────────────────────────────────────────
+  // ── 3. Happiness (OWID) ──────────────────────────────────────────────────
   await prisma.indicator.upsert({
     where:  { id: HAPPINESS_INDICATOR.id },
     update: { name: HAPPINESS_INDICATOR.name, theme: HAPPINESS_INDICATOR.theme, sourceName: HAPPINESS_INDICATOR.sourceName, sourceUrl: HAPPINESS_INDICATOR.sourceUrl, scaleMin: HAPPINESS_INDICATOR.scaleMin, scaleMax: HAPPINESS_INDICATOR.scaleMax, higherIsBetter: HAPPINESS_INDICATOR.higherIsBetter },
@@ -219,7 +264,7 @@ async function main() {
   );
   console.log(`  ✅ happiness_index: ${happTotal} values upserted\n`);
 
-  // ── 3. Recompute scores for all years ────────────────────────────────────
+  // ── 4. Recompute scores for all years ────────────────────────────────────
   console.log('🔢 Recomputing scores for all years...');
   const years = await prisma.countryIndicatorValue.findMany({ select: { year: true }, distinct: ['year'] });
 
