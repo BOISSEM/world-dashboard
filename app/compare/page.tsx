@@ -122,7 +122,7 @@ const filteredComparisonData = comparisonData.map((item) => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>
-                Select Countries (max {plan === 'PREMIUM' ? 5 : 2})
+                Select Countries (max {plan === 'PREMIUM' ? 5 : 3})
               </CardTitle>
               {plan === 'FREE' && (
                 <Link href="/pricing" className="text-xs text-indigo-600 font-medium hover:underline">
@@ -137,7 +137,7 @@ const filteredComparisonData = comparisonData.map((item) => {
               selectedCountries={selectedCountries}
               onSelectionChange={(isos) =>
                 setSelectedCountries(
-                  plan === 'PREMIUM' ? isos.slice(0, 5) : isos.slice(0, 2)
+                  plan === 'PREMIUM' ? isos.slice(0, 5) : isos.slice(0, 3)
                 )
               }
             />

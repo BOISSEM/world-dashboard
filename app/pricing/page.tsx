@@ -11,7 +11,7 @@ import { useUser } from '@clerk/nextjs';
 const FREE_FEATURES = [
   'Carte mondiale interactive',
   'Détails pays (score global + indicateurs)',
-  'Comparaison 2 pays',
+  'Comparaison jusqu\'à 3 pays',
   'Analytics — Top 10 + Régions',
 ];
 
