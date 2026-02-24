@@ -2,11 +2,12 @@ export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { LATEST_DATA_YEAR } from '@/lib/data-config';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const year = parseInt(searchParams.get('year') || String(new Date().getFullYear()));
+    const year = parseInt(searchParams.get('year') || String(LATEST_DATA_YEAR));
     const indicatorIds = searchParams.get('indicatorIds')?.split(',') || [];
 
     if (indicatorIds.length === 0) {

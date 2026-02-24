@@ -3,12 +3,13 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getUserPlan } from '@/lib/auth';
+import { LATEST_DATA_YEAR } from '@/lib/data-config';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const countriesParam = searchParams.get('countries');
-    const year = parseInt(searchParams.get('year') || String(new Date().getFullYear()));
+    const year = parseInt(searchParams.get('year') || String(LATEST_DATA_YEAR));
 
     if (!countriesParam) {
       return NextResponse.json([]);

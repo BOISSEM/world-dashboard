@@ -10,6 +10,7 @@ import ComparisonTable from '@/components/compare/ComparisonTable';
 import IndicatorFilter from '@/components/map/IndicatorFilter';
 import { UserButton } from '@clerk/nextjs';
 import PremiumGate from '@/components/PremiumGate';
+import { LATEST_DATA_YEAR } from '@/lib/data-config';
 
 interface Country {
   iso3: string;
@@ -66,7 +67,7 @@ export default function ComparePage() {
 
     const params = new URLSearchParams({
       countries: selectedCountries.join(','),
-      year: String(new Date().getFullYear()),
+      year: String(LATEST_DATA_YEAR),
     });
 
     fetch(`/api/compare?${params}`)

@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { LATEST_DATA_YEAR } from '@/lib/data-config';
 
 export async function GET() {
   try {
@@ -10,13 +11,13 @@ export async function GET() {
       include: {
         computedScores: {
           where: {
-            year: new Date().getFullYear(),
+            year: LATEST_DATA_YEAR,
             profileId: 'default',
           },
         },
         indicatorValues: {
           where: {
-            year: new Date().getFullYear(),
+            year: LATEST_DATA_YEAR,
           },
         },
       },

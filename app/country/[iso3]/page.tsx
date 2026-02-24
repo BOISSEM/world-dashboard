@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { formatNumber } from '@/lib/utils';
+import { LATEST_DATA_YEAR } from '@/lib/data-config';
 
 interface PageProps {
   params: Promise<{ iso3: string }>;
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       name: true,
       region: true,
       computedScores: {
-        where: { year: new Date().getFullYear(), profileId: 'default' },
+        where: { year: LATEST_DATA_YEAR, profileId: 'default' },
         select: { score: true, coverageRatio: true },
         take: 1,
       },
@@ -76,16 +77,16 @@ export default async function CountryPage({ params }: PageProps) {
       where: { iso3 },
       include: {
         indicatorValues: {
-          where: { year: new Date().getFullYear() },
+          where: { year: LATEST_DATA_YEAR },
           include: { indicator: true },
         },
         computedScores: {
-          where: { year: new Date().getFullYear(), profileId: 'default' },
+          where: { year: LATEST_DATA_YEAR, profileId: 'default' },
         },
       },
     }),
     prisma.computedScore.findMany({
-      where: { iso3, profileId: 'default', year: { lt: new Date().getFullYear() } },
+      where: { iso3, profileId: 'default', year: { lt: LATEST_DATA_YEAR } },
       orderBy: { year: 'asc' },
       select: { year: true, score: true },
     }),
