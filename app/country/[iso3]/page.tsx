@@ -85,7 +85,7 @@ export default async function CountryPage({ params }: PageProps) {
       },
     }),
     prisma.computedScore.findMany({
-      where: { iso3, profileId: 'default' },
+      where: { iso3, profileId: 'default', year: { lt: new Date().getFullYear() } },
       orderBy: { year: 'asc' },
       select: { year: true, score: true },
     }),
