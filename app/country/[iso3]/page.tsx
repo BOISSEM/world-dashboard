@@ -42,6 +42,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = `${country.name}${scoreText}`;
   const description = `${country.name} country profile: global ranking, economy, health, education, environment and quality of life indicators. Region: ${country.region}.`;
 
+  const ogParams = new URLSearchParams({ name: country.name, region: country.region });
+  if (score != null) ogParams.set('score', score.toFixed(0));
+  const ogImage = `/api/og?${ogParams.toString()}`;
+
   return {
     title,
     description,
@@ -52,6 +56,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: `${title} | World Rankings`,
       description,
       url: `/country/${iso3}`,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | World Rankings`,
+      description,
+      images: [ogImage],
     },
   };
 }
