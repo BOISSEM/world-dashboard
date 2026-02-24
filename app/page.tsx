@@ -126,37 +126,38 @@ export default function HomePage() {
       <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-2 rounded-lg">
-                <Globe2 className="w-6 h-6 text-white" />
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-2 rounded-lg shrink-0">
+                <Globe2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Pays de merde</h1>
-                <p className="text-sm text-gray-500">Global Indicators & Insights</p>
+              <div className="hidden sm:block">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Pays de merde</h1>
+                <p className="text-xs sm:text-sm text-gray-500">Global Indicators & Insights</p>
               </div>
             </div>
-            <nav className="flex items-center gap-3">
+            <nav className="flex items-center gap-1 sm:gap-3">
               <Link href="/analytics">
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button variant="outline" size="sm" className="gap-1 sm:gap-2 px-2 sm:px-3">
                   <TrendingUp className="w-4 h-4" />
-                  Analytics
+                  <span className="hidden sm:inline">Analytics</span>
                 </Button>
               </Link>
               <Link href="/compare">
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button variant="outline" size="sm" className="gap-1 sm:gap-2 px-2 sm:px-3">
                   <BarChart3 className="w-4 h-4" />
-                  Compare
+                  <span className="hidden sm:inline">Compare</span>
                 </Button>
               </Link>
               <Link href="/methodology">
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button variant="outline" size="sm" className="gap-1 sm:gap-2 px-2 sm:px-3">
                   <BookOpen className="w-4 h-4" />
-                  Methodology
+                  <span className="hidden sm:inline">Methodology</span>
                 </Button>
               </Link>
               <Link href="/pricing">
-                <Button variant="outline" size="sm" className="gap-2 border-indigo-300 text-indigo-700 hover:bg-indigo-50">
-                  Premium
+                <Button variant="outline" size="sm" className="gap-1 sm:gap-2 px-2 sm:px-3 border-indigo-300 text-indigo-700 hover:bg-indigo-50">
+                  <span className="hidden sm:inline">Premium</span>
+                  <span className="sm:hidden">★</span>
                 </Button>
               </Link>
               {isSignedIn ? (

@@ -35,13 +35,13 @@ export default function CountryDrawer({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-[400px] sm:w-[540px]">
-        <SheetHeader>
+      <SheetContent className="w-full sm:w-[480px] flex flex-col">
+        <SheetHeader className="shrink-0">
           <SheetTitle className="text-2xl">{country.name}</SheetTitle>
           <div className="text-sm text-gray-500">{country.region}</div>
         </SheetHeader>
 
-        <div className="mt-6 space-y-6">
+        <div className="flex-1 overflow-y-auto mt-6 space-y-6 pr-1">
           {/* Flag Placeholder */}
           <div className="w-full h-32 bg-gray-200 rounded-lg flex items-center justify-center">
             <span className="text-4xl">{country.iso3}</span>
