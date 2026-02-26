@@ -12,7 +12,8 @@
     "db:seed:extended": "tsx prisma/seed-extended.ts",
     "fetch:real-data": "tsx scripts/fetch-real-data.ts",
     "import:real-data": "tsx scripts/import-real-data.ts",
-    "check:data": "tsx scripts/check-data.ts"
+    "check:data": "tsx scripts/check-data.ts",
+    "import:average-wage": "tsx scripts/import-average-wage.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.38.2",
