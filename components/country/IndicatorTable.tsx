@@ -6,6 +6,7 @@ interface IndicatorData {
   theme: string;
   value: number;
   valueNorm: number;
+  year?: number;
   sourceName: string;
   sourceUrl: string;
 }
@@ -24,6 +25,7 @@ export default function IndicatorTable({ indicators }: IndicatorTableProps) {
             <TableHead>Theme</TableHead>
             <TableHead className="text-right">Raw Value</TableHead>
             <TableHead className="text-right">Normalized</TableHead>
+            <TableHead className="text-center">Year</TableHead>
             <TableHead>Source</TableHead>
           </TableRow>
         </TableHeader>
@@ -43,6 +45,13 @@ export default function IndicatorTable({ indicators }: IndicatorTableProps) {
                 <span className="font-semibold text-blue-600">
                   {formatNumber(ind.valueNorm, 1)}
                 </span>
+              </TableCell>
+              <TableCell className="text-center">
+                {ind.year ? (
+                  <span className={`text-xs px-1.5 py-0.5 rounded ${ind.year < 2023 ? 'bg-amber-100 text-amber-700' : 'text-gray-400'}`}>
+                    {ind.year}
+                  </span>
+                ) : '—'}
               </TableCell>
               <TableCell>
                 {ind.sourceName}

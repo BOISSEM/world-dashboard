@@ -72,18 +72,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CountryPage({ params }: PageProps) {
   const { iso3 } = await params;
 
-  const [country, historicalScores] = await Promise.all([
+  // Fetch all values for this country (all years), then keep latest per indicator
+  const [country, allIndicatorValues, historicalScores] = await Promise.all([
     prisma.country.findUnique({
       where: { iso3 },
       include: {
-        indicatorValues: {
-          where: { year: LATEST_DATA_YEAR },
-          include: { indicator: true },
-        },
         computedScores: {
-          where: { year: LATEST_DATA_YEAR, profileId: 'default' },
+          where: { profileId: 'default' },
+          orderBy: { year: 'desc' },
+          take: 1,
         },
       },
+    }),
+    prisma.countryIndicatorValue.findMany({
+      where: { iso3 },
+      include: { indicator: true },
+      orderBy: { year: 'desc' },
     }),
     prisma.computedScore.findMany({
       where: { iso3, profileId: 'default', year: { lt: LATEST_DATA_YEAR } },
@@ -91,6 +95,13 @@ export default async function CountryPage({ params }: PageProps) {
       select: { year: true, score: true },
     }),
   ]);
+
+  // Keep latest year per indicator
+  const latestByIndicator = new Map<string, typeof allIndicatorValues[0]>();
+  for (const v of allIndicatorValues) {
+    if (!latestByIndicator.has(v.indicatorId)) latestByIndicator.set(v.indicatorId, v);
+  }
+  const indicatorValues = Array.from(latestByIndicator.values());
 
   if (!country) {
     return <div>Country not found</div>;
@@ -101,25 +112,29 @@ export default async function CountryPage({ params }: PageProps) {
 
   const kpis = [
     { label: 'Global Score', value: globalScore?.score || 0 },
-    { label: 'Indicators Covered', value: country.indicatorValues.length },
+    { label: 'Indicators Covered', value: indicatorValues.length },
     { label: 'Coverage Ratio', value: coverageRatio * 100, unit: '%' },
   ];
 
-  const thematicData = country.indicatorValues.map((iv) => ({
+  const thematicData = indicatorValues.map((iv) => ({
     name: iv.indicator.name,
     value: iv.value,
     valueNorm: iv.valueNorm,
     theme: iv.indicator.theme,
   }));
 
-  const tableData = country.indicatorValues.map((iv) => ({
+  const tableData = indicatorValues.map((iv) => ({
     name: iv.indicator.name,
     theme: iv.indicator.theme,
     value: iv.value,
     valueNorm: iv.valueNorm,
+    year: iv.year,
     sourceName: iv.indicator.sourceName,
     sourceUrl: iv.indicator.sourceUrl,
   }));
+
+  const dataYearMin = indicatorValues.length ? Math.min(...indicatorValues.map(iv => iv.year)) : LATEST_DATA_YEAR;
+  const dataYearMax = indicatorValues.length ? Math.max(...indicatorValues.map(iv => iv.year)) : LATEST_DATA_YEAR;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -149,7 +164,7 @@ export default async function CountryPage({ params }: PageProps) {
                 {formatNumber(globalScore.score, 1)}
               </div>
               <p className="text-sm text-gray-600">
-                This score is computed from {country.indicatorValues.length}{' '}
+                This score is computed from {indicatorValues.length}{' '}
                 indicators with {formatNumber(coverageRatio * 100, 0)}% coverage.
               </p>
             </CardContent>
@@ -169,7 +184,7 @@ export default async function CountryPage({ params }: PageProps) {
           <Card className="mb-6">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-semibold">Score Evolution</CardTitle>
-              <p className="text-xs text-gray-500">Based on World Bank indicators (2016–{LATEST_DATA_YEAR})</p>
+              <p className="text-xs text-gray-500">Score evolution (2016–{LATEST_DATA_YEAR})</p>
             </CardHeader>
             <CardContent>
               <ScoreHistoryChart data={historicalScores} />
@@ -183,7 +198,12 @@ export default async function CountryPage({ params }: PageProps) {
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold mb-4">All Indicators</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">All Indicators</h2>
+            <p className="text-xs text-gray-400">
+              Most recent available data per indicator ({dataYearMin === dataYearMax ? dataYearMax : `${dataYearMin}–${dataYearMax}`})
+            </p>
+          </div>
           <IndicatorTable indicators={tableData} />
         </div>
       </main>
