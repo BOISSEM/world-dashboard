@@ -40,12 +40,8 @@ export default function HomePage() {
   const { isSignedIn } = useUser();
   const [indicators, setIndicators] = useState<Indicator[]>([]);
   const [mapData, setMapData] = useState<MapDataPoint[]>([]);
-  const [selectedIndicatorId, setSelectedIndicatorId] = useState<string | null>(null);
-  const [useGlobalScore, setUseGlobalScore] = useState(true);
   const [selectedCountry, setSelectedCountry] = useState<CountryData | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  
-  // Nouveaux états pour le filtre
   const [selectedIndicatorIds, setSelectedIndicatorIds] = useState<string[]>([]);
 
   useEffect(() => {
@@ -53,38 +49,20 @@ export default function HomePage() {
       .then((res) => res.json())
       .then((data) => {
         setIndicators(data);
-        // Sélectionner tous les indicateurs par défaut
         setSelectedIndicatorIds(data.map((i: Indicator) => i.id));
-        if (data.length > 0 && !useGlobalScore) {
-          setSelectedIndicatorId(data[0].id);
-        }
       });
   }, []);
 
   useEffect(() => {
-    if (useGlobalScore && selectedIndicatorIds.length > 0) {
-      // Score personnalisé avec indicateurs sélectionnés
-      const params = new URLSearchParams({
-        year: String(LATEST_DATA_YEAR),
-        indicatorIds: selectedIndicatorIds.join(','),
-      });
-
-      fetch(`/api/custom-score?${params}`)
-        .then((res) => res.json())
-        .then((data) => setMapData(data));
-    } else if (!useGlobalScore && selectedIndicatorId) {
-      // Un seul indicateur
-      const params = new URLSearchParams({
-        year: String(LATEST_DATA_YEAR),
-        useGlobalScore: 'false',
-        indicatorId: selectedIndicatorId,
-      });
-
-      fetch(`/api/map-data?${params}`)
-        .then((res) => res.json())
-        .then((data) => setMapData(data));
-    }
-  }, [selectedIndicatorId, useGlobalScore, selectedIndicatorIds]);
+    if (selectedIndicatorIds.length === 0) return;
+    const params = new URLSearchParams({
+      year: String(LATEST_DATA_YEAR),
+      indicatorIds: selectedIndicatorIds.join(','),
+    });
+    fetch(`/api/custom-score?${params}`)
+      .then((res) => res.json())
+      .then((data) => setMapData(data));
+  }, [selectedIndicatorIds]);
 
   const handleCountryClick = async (iso3: string) => {
   try {
@@ -189,13 +167,6 @@ export default function HomePage() {
           <div className="p-6">
             <MapControls
               indicators={indicators}
-              selectedIndicatorId={selectedIndicatorId}
-              useGlobalScore={useGlobalScore}
-              onIndicatorChange={(id) => {
-                setSelectedIndicatorId(id);
-                setUseGlobalScore(false);
-              }}
-              onGlobalScoreToggle={() => setUseGlobalScore(!useGlobalScore)}
               selectedIndicatorIds={selectedIndicatorIds}
               onIndicatorFilterChange={setSelectedIndicatorIds}
             />
