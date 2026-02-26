@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { BarChart3, BookOpen, Globe2, TrendingUp } from 'lucide-react';
 import { UserButton, SignInButton, useUser } from '@clerk/nextjs';
 import { LATEST_DATA_YEAR } from '@/lib/data-config';
+import Image from 'next/image';
 
 interface Indicator {
   id: string;
@@ -38,6 +39,7 @@ interface CountryData {
 
 export default function HomePage() {
   const { isSignedIn } = useUser();
+  const [logoError, setLogoError] = useState(false);
   const [indicators, setIndicators] = useState<Indicator[]>([]);
   const [mapData, setMapData] = useState<MapDataPoint[]>([]);
   const [selectedCountry, setSelectedCountry] = useState<CountryData | null>(null);
@@ -106,12 +108,23 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-2 rounded-lg shrink-0">
-                <Globe2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              </div>
-              <div className="hidden sm:block">
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Pays de merde</h1>
-                <p className="text-xs sm:text-sm text-gray-500">Global Indicators & Insights</p>
+              {logoError ? (
+                <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-2 rounded-lg shrink-0">
+                  <Globe2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                </div>
+              ) : (
+                <Image
+                  src="/logo.png"
+                  alt="Pays de merde"
+                  width={40}
+                  height={40}
+                  className="rounded-lg shrink-0 object-cover"
+                  onError={() => setLogoError(true)}
+                />
+              )}
+              <div>
+                <h1 className="text-base sm:text-2xl font-bold text-gray-900 leading-tight">Pays de merde</h1>
+                <p className="hidden sm:block text-xs sm:text-sm text-gray-500">Global Indicators & Insights</p>
               </div>
             </div>
             <nav className="flex items-center gap-1 sm:gap-3">
