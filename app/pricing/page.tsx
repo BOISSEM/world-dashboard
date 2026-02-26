@@ -130,7 +130,7 @@ function PricingContent() {
             </div>
             <div className="flex items-baseline gap-1">
               <span className="text-4xl font-bold text-gray-900">2€</span>
-              <span className="text-gray-500">/ 1 month • no renewal</span>
+              <span className="text-gray-500">/ 1 year • no renewal</span>
             </div>
           </CardHeader>
           <CardContent>

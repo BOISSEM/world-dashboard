@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     if (!clerkUserId) return NextResponse.json({ received: true });
 
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 30);
+    expiresAt.setFullYear(expiresAt.getFullYear() + 1);
 
     await prisma.user.update({
       where: { id: clerkUserId },
