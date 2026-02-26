@@ -28,15 +28,16 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
 }
 
 export default function ScoreHistoryChart({ data }: { data: ScorePoint[] }) {
-  if (data.length < 2) return null;
+  const filteredData = data.filter((d) => d.year >= 2016);
+  if (filteredData.length < 2) return null;
 
-  const scores = data.map((d) => d.score);
+  const scores = filteredData.map((d) => d.score);
   const min = Math.max(0, Math.floor(Math.min(...scores) / 10) * 10 - 10);
   const max = Math.min(100, Math.ceil(Math.max(...scores) / 10) * 10 + 10);
 
   return (
     <ResponsiveContainer width="100%" height={200}>
-      <LineChart data={data} margin={{ top: 8, right: 16, bottom: 0, left: -16 }}>
+      <LineChart data={filteredData} margin={{ top: 8, right: 16, bottom: 0, left: -16 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
         <XAxis
           dataKey="year"

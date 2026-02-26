@@ -247,6 +247,17 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+
+        <div className="mt-4 bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
+          <p className="text-sm text-gray-600">
+            <span className="font-medium text-gray-800">Data sources:</span>{' '}
+            World Bank, Our World in Data, UNODC, and World Happiness Report.
+            All indicators are updated annually.{' '}
+            <Link href="/methodology" className="text-indigo-600 hover:underline">
+              View methodology →
+            </Link>
+          </p>
+        </div>
       </main>
 
       <CountryDrawer

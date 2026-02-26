@@ -83,7 +83,7 @@ export default function IndicatorFilter({
           />
 
           {/* Panel */}
-          <Card className="absolute top-12 left-0 w-[600px] max-h-[600px] overflow-auto z-50 shadow-2xl bg-white border border-gray-200">
+          <Card className="fixed sm:absolute inset-x-4 sm:inset-auto top-[8vh] sm:top-12 sm:left-0 w-auto sm:w-[600px] max-h-[80vh] sm:max-h-[600px] overflow-auto z-50 shadow-2xl bg-white border border-gray-200">
             <CardHeader className="sticky top-0 bg-white border-b z-10 backdrop-blur-sm">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">Select Indicators</CardTitle>

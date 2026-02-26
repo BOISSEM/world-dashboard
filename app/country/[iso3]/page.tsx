@@ -169,7 +169,7 @@ export default async function CountryPage({ params }: PageProps) {
           <Card className="mb-6">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-semibold">Score Evolution</CardTitle>
-              <p className="text-xs text-gray-500">Based on World Bank indicators (2015–2025)</p>
+              <p className="text-xs text-gray-500">Based on World Bank indicators (2016–{LATEST_DATA_YEAR})</p>
             </CardHeader>
             <CardContent>
               <ScoreHistoryChart data={historicalScores} />

@@ -84,7 +84,7 @@ export default function MapControls({
       {/* Filtre multi-critères */}
       {useGlobalScore && onIndicatorFilterChange && (
         <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex flex-wrap items-center gap-3 mb-3">
             <span className="text-sm font-medium text-gray-700">
               Customize Global Score:
             </span>
