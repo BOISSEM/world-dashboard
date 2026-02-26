@@ -49,7 +49,7 @@ export default function MapControls({
             <SelectTrigger className="w-full sm:w-[280px] bg-white border-gray-300">
               <SelectValue placeholder="Select indicator" />
             </SelectTrigger>
-            <SelectContent className="bg-white border border-gray-200 shadow-xl z-50 max-h-[400px] overflow-y-auto">
+            <SelectContent className="bg-white border border-gray-200 shadow-xl z-50 max-h-[400px] overflow-y-auto w-[var(--radix-select-trigger-width)]">
               <SelectItem value="global" className="bg-white hover:bg-gray-100">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">🌐</span>

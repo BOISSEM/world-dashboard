@@ -159,7 +159,7 @@ const filteredComparisonData = comparisonData.map((item) => {
           </CardHeader>
           <CardContent>
             {plan === 'PREMIUM' ? (
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-3">
                 <IndicatorFilter
                   indicators={indicators}
                   selectedIds={selectedIndicators}
