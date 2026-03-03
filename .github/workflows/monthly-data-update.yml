@@ -35,7 +35,13 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NODE_ENV: production
-      
+
+      - name: Import geopolitics indicators
+        run: npm run import:geopolitics
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NODE_ENV: production
+
       - name: Notify on success
         if: success()
         run: |

@@ -15,7 +15,8 @@
     "check:data": "tsx scripts/check-data.ts",
     "import:average-wage": "tsx scripts/import-average-wage.ts",
     "import:median-income": "tsx scripts/import-median-income.ts",
-    "fix:missing-2024": "tsx scripts/fix-missing-2024.ts"
+    "fix:missing-2024": "tsx scripts/fix-missing-2024.ts",
+    "import:geopolitics": "tsx scripts/import-geopolitics.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.38.2",
