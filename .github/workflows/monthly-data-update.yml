@@ -2,8 +2,9 @@ name: Monthly Data Update
 
 on:
   schedule:
-    # Runs at 2 AM UTC on the 1st of every month
-    - cron: '0 2 1 * *'
+    # Runs at 2:17 AM UTC on the 1st of every month.
+    # Changing this cron also re-enables the workflow after GitHub inactivity auto-disable.
+    - cron: '17 2 1 * *'
   
   # Permet de lancer manuellement
   workflow_dispatch:
@@ -38,6 +39,12 @@ jobs:
 
       - name: Import geopolitics indicators
         run: npm run import:geopolitics
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NODE_ENV: production
+
+      - name: Import air pollution indicator
+        run: npm run import:air-pollution
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NODE_ENV: production
